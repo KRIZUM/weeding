@@ -150,7 +150,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * на мобилке слева под текстом про кота и над купидоном. Положи ./assets/isida.png
      */
     flowersSection: {
-      isidaUrl: './assets/isida.PNG',
+      isidaUrl: './assets/isida.png',
       cupidFileRx: /group_497\.png|group_496\.png/i,
       /** Вертикальный зазор между isida и блоком купидона (px) */
       isidaStackGapPx: 16,
