@@ -1,0 +1,959 @@
+/* Google Fonts подключаются в <head> index.html (без @import — чтобы не блокировать разбор этого файла). */
+
+/* Локальный скрипт (Anugrah Pasau, см. font/COPYRIGHT.txt) */
+@font-face {
+  font-family: 'Kindentosca';
+  src: url('./font/Kindentosca.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  --wine: #711717;
+  --cream: #fefaef;
+  /* Заголовки и подписи вместо Great Vibes */
+  --font-script: 'Kindentosca', 'Great Vibes', cursive;
+}
+
+html,
+body {
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  /* hidden + visible по другой оси даёт overflow-y: auto и «внутренний» скролл; clip — нет */
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+#allrecords {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: clip;
+  overflow-y: visible;
+}
+
+.font-jura {
+  font-family: 'Jura', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+}
+
+.font-marck {
+  font-family: 'Marck Script', cursive;
+}
+
+/* --- Шапка #rec1770088991: фон на всю ширину записи; полоса до даты --- */
+#rec1770088991 .tn-elem[data-elem-id='1758030530045'],
+#rec1770088991 .tn-elem[data-elem-id='1767983408058'] {
+  display: none !important;
+}
+
+#rec1770088991 {
+  position: relative;
+  isolation: isolate;
+  overflow-x: clip;
+  overflow-y: visible;
+  background-color: var(--wine);
+}
+
+/* ПК: вся шапка (фон ::before + Zero, Save the date, имена) на 100px выше */
+@media screen and (min-width: 1200px) {
+  #rec1770088991 {
+    margin-top: -80px !important;
+  }
+}
+
+#rec1770088991 .t396 {
+  position: relative;
+  z-index: 2;
+  overflow-x: visible;
+  background: transparent;
+}
+
+#rec1770088991 .t396__artboard {
+  position: relative;
+  overflow: visible;
+}
+
+/*
+ * Фон на #rec: ширина 100% от записи (не 100vw — иначе полоса справа на мобилке).
+ * Артборд/filter/carrier прозрачны — иначе бордо Tilda перекрывает ::before.
+ */
+#rec1770088991::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  width: 100%;
+  max-width: 100%;
+  height: var(--gv-hero-fon-h, 66vh);
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  z-index: 1;
+  pointer-events: none;
+  background-color: var(--wine);
+  background-image: var(--gv-hero-fon-url, url('./assets/fon.jpg'));
+  /* center top по умолчанию; при обрезке сверху JS ставит center bottom */
+  background-position: var(--gv-hero-fon-bg-pos, center top);
+  /* Ширина фона: на ПК — --gv-hero-desktop-fon-w из script.js (по умолчанию 90%); мобилка 100% */
+  background-size: var(--gv-hero-desktop-fon-w, 100%) auto;
+  background-repeat: no-repeat;
+}
+
+#rec1770088991 .t396__artboard,
+#rec1770088991 .t396__filter,
+#rec1770088991 .t396__carrier {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+#rec1770088991 .t396__carrier,
+#rec1770088991 .t396__filter {
+  z-index: 0 !important;
+}
+
+/* Save the date: чуть выше */
+#rec1770088991 .tn-elem[data-elem-id='1767983106241'] {
+  transform: translateY(-20px) !important;
+}
+
+/* Имена: на десктопе чуть выше (позиция из Tilda); на мобилке — ниже, по центру */
+#rec1770088991 .tn-elem[data-elem-id='1767983130743000002'] {
+  transform: translateY(-20px) !important;
+}
+
+/*
+ * ПК: опустить все слои шапки, кроме Save the date и имён; фон ::before без margin — не сдвигается.
+ * --gv-hero-desktop-layer-shift задаётся в script.js (= CONFIG.hero.desktopLayerShiftDownPx).
+ */
+@media screen and (min-width: 1200px) {
+  #rec1770088991
+    .t396__artboard
+    .tn-elem:not([data-elem-id='1767983106241']):not([data-elem-id='1767983130743000002']) {
+    margin-top: var(--gv-hero-desktop-layer-shift, 0px) !important;
+  }
+}
+
+/* Слои Zero поверх фото, иначе текст окажется под ::before */
+#rec1770088991 .t396__artboard .tn-elem {
+  z-index: 2 !important;
+}
+
+/* Как заголовки секций (напр. «Место и время»): Kindentosca */
+.gv-hero-save-the-date {
+  display: block;
+  width: 100%;
+  text-align: center;
+  font-family: var(--font-script);
+  font-weight: 400;
+  font-size: clamp(34px, 7vw, 96px);
+  line-height: 1.08;
+  letter-spacing: 0.02em;
+  color: #fff;
+  margin-top: 34px;
+}
+
+#rec1770088991 .tn-atom[field='tn_text_1767983130743000002'] {
+  font-family:
+    'Jura',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Arial,
+    sans-serif !important;
+  font-weight: 700 !important;
+  font-size: clamp(8px, 3vw, 22px) !important;
+  line-height: 1.15 !important;
+  letter-spacing: 0.06em !important;
+  text-align: center !important;
+  color: #fff !important;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+@media screen and (max-width: 1200px) {
+  .gv-hero-save-the-date {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-family: var(--font-script);
+    font-weight: 400;
+    font-size: clamp(34px, 7vw, 96px);
+    line-height: 1.08;
+    letter-spacing: 0.02em;
+    color: #fff;
+    margin-top: 16px;
+  }
+
+  /*
+   * «— Владислав и Дарья —» (field tn_text_1767983130743000002): только при max-width: 1200px.
+   * ПК (ширина > 1200px) не затрагивается — там действует clamp в селекторе выше.
+   * Меняйте три числа: min, предпочтительно vw, max.
+   */
+  #rec1770088991 .tn-atom[field='tn_text_1767983130743000002'] {
+    font-size: clamp(12px, 1.9vw, 19px) !important;
+    transform: translateY(-4px);
+  }
+
+  /*
+   * «Дорогие и близкие» (_.svg): как «Место и время» (__(1).svg) — тот же clamp, что даёт responsiveFont(105, 0.34, 15) в script.js.
+   * Только max-width: 1200px; ПК не трогаем.
+   */
+  #allrecords .tn-elem[data-elem-id='1758033253962'][data-gv-dear-guests-title='1'] .gv-svg-title {
+    font-size: clamp(36px, 7vw, 105px) !important;
+  }
+
+  /*
+   * Зазор до абзаца: у JS на обёртке min-height + flex center — под текстом остаётся «пустая» полоса.
+   * Сбрасываем min-height, высота по контенту, выравнивание по верху (как визуально у «Место и времени»).
+   */
+  #allrecords .tn-elem[data-elem-id='1758033253962'][data-gv-dear-guests-title='1'] {
+    min-height: unset !important;
+    height: auto !important;
+    align-items: flex-start !important;
+    justify-content: center !important;
+    /* +10px вниз без смены transform из script.js (inline !important) */
+    margin-top: 28px !important;
+  }
+
+  #allrecords .tn-elem[data-elem-id='1758033253962'][data-gv-dear-guests-title='1'] .tn-atom {
+    min-height: 0 !important;
+  }
+
+  /* Абзац «Вы получили эту ссылку…» (слой 1767983499549): поднять на 20px */
+  #allrecords .tn-elem[data-elem-id='1767983499549'] {
+    margin-top: -20px !important;
+  }
+
+  /*
+   * noroot(1).png: визуально укоротить блок на 50px снизу (clip-path; не трогаем ПК — только max-width: 1200px).
+   */
+  #rec1770088991 .tn-elem:has(img.tn-atom__img[src*='noroot(1)']) {
+    clip-path: inset(0 0 50px 0) !important;
+  }
+}
+
+#rec1770088991 .gv-date-hero {
+  font-family: var(--font-script) !important;
+  font-style: normal !important;
+  font-weight: 400 !important;
+  color: #fff !important;
+  font-size: 57px;
+  -webkit-text-stroke: 0 !important;
+  text-shadow: none !important;
+}
+
+@media screen and (min-width: 1200px) {
+  /*
+   * Заголовки из SVG (__(1).svg «Место и время», _.svg «Дорогие и близкие»):
+   * ширина слоя по тексту (max-content), иначе Tilda width 514/592 уже́ сужает flex и центр «плывёт».
+   * Центр артборда: left 50% + translateX(-50%).
+   */
+  #allrecords .tn-elem.gv-place-title-wrap {
+    left: 50% !important;
+    right: auto !important;
+    margin-left: 0 !important;
+    width: max-content !important;
+    max-width: min(1100px, calc(100vw - 48px)) !important;
+    box-sizing: border-box !important;
+    transform: translate(-50%, -24px) !important;
+    transform-origin: center center;
+  }
+
+  #allrecords .tn-elem[data-elem-id='1758033253962'][data-gv-dear-guests-title='1'] {
+    left: 50% !important;
+    right: auto !important;
+    margin-left: 0 !important;
+    width: max-content !important;
+    max-width: min(1100px, calc(100vw - 48px)) !important;
+    box-sizing: border-box !important;
+    transform: translate(-50%, -5%) !important;
+    transform-origin: center center;
+  }
+
+  #allrecords .tn-elem.gv-place-title-wrap .tn-atom,
+  #allrecords .tn-elem[data-gv-dear-guests-title='1'] .tn-atom {
+    width: auto !important;
+    max-width: none !important;
+    min-width: 0;
+  }
+}
+
+@media screen and (max-width: 1199px) {
+  #rec1770088991::before {
+    /* Пока JS не выставил --gv-hero-fon-url — мобильный кадр */
+    background-image: var(--gv-hero-fon-url, url('./assets/fon-mobile.png'));
+  }
+
+  /* «6 июня 2026 года»: центр; дублируется в script.js (fixMobileHeroDateLayerForMobile) после t396 scale */
+  #rec1770088991 .tn-elem[data-elem-id='1767983418592'] {
+    left: 50% !important;
+    right: auto !important;
+    width: calc(100% - 32px) !important;
+    max-width: min(100%, 420px) !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+    transform: translate(-50%, calc(-14% - 12px)) !important;
+  }
+
+  /* Чуть крупнее скрипт (над базовым clamp с обёртки) */
+  #rec1770088991 .tn-elem[data-elem-id='1767983418592'] .tn-atom {
+    font-size: clamp(22px, 3.55vw, 52px) !important;
+  }
+
+  #rec1770088991 .tn-atom .gv-date-hero {
+    font-size: 1.12em !important;
+  }
+
+  /* «Дорогие и близкие»: translateY задаёт script.js; сдвиги max-width: 1200px — см. блок выше */
+
+  #rec1770088991 .tn-elem[data-elem-id='1767983130743000002'] {
+    left: 50% !important;
+    right: auto !important;
+    width: calc(100% - 32px) !important;
+    max-width: 100% !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    box-sizing: border-box !important;
+    transform: translate(-50%, -20px) !important;
+  }
+
+  #rec1770088991 .tn-atom[field='tn_text_1767983130743000002'] {
+    white-space: normal !important;
+    text-align: center !important;
+  }
+
+  /* Запись и артборд в потоке не шире вьюпорта — иначе справа белая полоса body */
+  #allrecords > .r.t-rec {
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box;
+  }
+
+  #rec1770088991 .t396,
+  #rec1770088991 .t396__artboard,
+  #rec1770088991 .t396__carrier,
+  #rec1770088991 .t396__filter {
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+}
+
+/* Блок цитаты (замена _.svg): как на макете — компактный скрипт, акцент бордо */
+.gv-quote-block {
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0 8px;
+  text-align: center;
+}
+
+.gv-quote-block .gv-quote-lines {
+  font-family: var(--font-script);
+  font-size: 48px;
+  line-height: 1.18;
+  color: #252525;
+  font-weight: 400;
+}
+
+.gv-quote-block .gv-quote-accent {
+  color: #771919;
+}
+
+.gv-quote-block .gv-quote-author {
+  text-align: right;
+  font-family: 'Jura', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  font-size: 13px;
+  color: #9a9a9a;
+  margin-top: 10px;
+  padding-right: 4px;
+  letter-spacing: 0.02em;
+  line-height: 1.3;
+}
+
+@media screen and (max-width: 640px) {
+  .gv-quote-block .gv-quote-lines {
+    font-size: 36px;
+  }
+
+  .gv-quote-block .gv-quote-author {
+    font-size: 12px;
+  }
+}
+
+/* Дресс-код (rec1770135251): пять кружков палитры скрыты, остаётся Ellipse_22 по центру */
+#rec1770135251 .tn-elem[data-elem-id='1767984654865'],
+#rec1770135251 .tn-elem[data-elem-id='1767984654884'],
+#rec1770135251 .tn-elem[data-elem-id='1767984654907'],
+#rec1770135251 .tn-elem[data-elem-id='1767984654966'],
+#rec1770135251 .tn-elem[data-elem-id='1767984654928'] {
+  display: none !important;
+}
+
+#rec1770135251 .tn-elem[data-elem-id='1767984654844'] {
+  left: calc(50% - 42px) !important;
+}
+
+@media screen and (max-width: 1199px) {
+  #rec1770135251 .tn-elem[data-elem-id='1767984654844'] {
+    left: calc(50% - 20.5px) !important;
+  }
+
+  /* Высота артборда на мобилке выставляется в script.js по фактическому низу контента (две референс-картинки). */
+
+  #rec1770135251,
+  #rec1770135251 .t396 {
+    overflow: visible !important;
+  }
+}
+
+/* Кнопка «Проложить маршрут» (CONFIG.navigationRoute.buttonDataElemId) */
+.tn-elem[data-elem-id='167983995319'] {
+  margin-top: 10px !important;
+}
+
+/* Два референса ref-muzhchiny / ref-zhenshchiny (слой data-elem-id="1767984738562") */
+.gv-ref-pair {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 20px;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.gv-ref-pair__img {
+  display: block;
+  flex: 1 1 50%;
+  min-width: 0;
+  width: 0;
+  height: auto;
+  object-fit: contain;
+  object-position: center top;
+}
+
+/*
+ * ПК: gap 20px; слой 746px — колонки (746−20)/2 = 363px = прежние 302.5px ×1.2.
+ * Мобилка переопределяет width/left ниже.
+ */
+#rec1770135251 .tn-elem[data-elem-id='1767984738562'] {
+  width: 746px !important;
+  left: calc(50% - 600px + 227px) !important;
+}
+
+@media screen and (max-width: 1199px) {
+  .gv-ref-pair {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+
+  .gv-ref-pair__img {
+    flex: 0 0 auto !important;
+    flex-shrink: 0;
+    width: 100%;
+    max-width: 100%;
+    height: auto !important;
+    max-height: none !important;
+  }
+
+  /*
+   * Tilda вешает display:table на image-элемент — второй img в .gv-ref-pair не показывается.
+   * Снимаем ограничение высоты у слоя и картинок.
+   */
+  #rec1770135251 .tn-elem[data-elem-id='1767984738562'] {
+    display: block !important;
+    width: 238px !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+    left: 50% !important;
+    margin-left: -119px !important;
+  }
+
+  #rec1770135251 .tn-elem[data-elem-id='1767984738562'] .tn-atom {
+    display: block !important;
+    height: auto !important;
+    max-height: none !important;
+    overflow: visible !important;
+  }
+
+  #rec1770135251 .tn-elem[data-elem-id='1767984738562'] .tn-atom__img {
+    max-height: none !important;
+    height: auto !important;
+  }
+}
+
+.reveal {
+  opacity: 0;
+  transform: translateY(18px);
+  transition:
+    opacity 800ms cubic-bezier(0.2, 0.8, 0.2, 1),
+    transform 800ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Заголовок + таймер: --gv-ct-title только для заголовка; цифры/подписи/«:» — ещё ×1.15 к прошлой итерации */
+.gv-countdown-block {
+  --gv-ct-title: clamp(34px, 4.8vw, 72px);
+  --gv-ct-digit: calc(var(--gv-ct-title) * 0.4761);
+  --gv-ct-label: max(0.66125rem, calc(var(--gv-ct-title) * 0.2314375));
+  --gv-ct-colon: calc(var(--gv-ct-title) * 0.39675);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: calc(var(--gv-ct-title) * 0.12);
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0;
+  transform: translateY(calc(-10% - 10px));
+  transform-origin: center top;
+}
+
+/* Слой с таймером: не держим жёсткую высоту Tilda, иначе цифры перекрывают следующий абсолютный блок */
+.t396__elem.tn-elem:has(.gv-countdown-block) {
+  height: auto !important;
+  overflow: visible !important;
+}
+
+/* Статичный нижний блок-подпись (в HTML, без JS-подмен). */
+.gv-footer-signature-static {
+  background: #711717;
+  color: #fefaef;
+  text-align: center;
+  font-family: var(--font-script);
+  font-size: clamp(40px, 7vw, 76px);
+  line-height: 1.05;
+  padding: clamp(20px, 4vw, 36px) 12px clamp(24px, 5vw, 44px);
+}
+
+/* Общая страховка от «наезда» больших скриптовых заголовков в мобилке */
+.gv-title-replacement {
+  max-width: 100%;
+  word-break: normal;
+  overflow-wrap: anywhere;
+}
+
+/* Дата в шапке (замена SVG) */
+.gv-date-hero {
+  display: block;
+  line-height: 1;
+  margin-bottom: 52px;
+  font-family: var(--font-script) !important;
+}
+
+/* Заголовки вместо SVG: размер и цвет задаются в JS через CSS-переменные */
+.gv-svg-title {
+  display: block;
+  line-height: 1.06;
+  font-family: var(--font-script);
+  font-size: var(--gv-title-font-size, 48px);
+  color: var(--gv-title-color, var(--cream));
+  white-space: var(--gv-title-white-space, nowrap);
+}
+
+/* Длинная цитата вместо _______.svg: тот же скрипт, что у SVG-заголовков, с переносами */
+.gv-svg-title.gv-quote-block-title {
+  line-height: 1.22;
+  max-width: 100%;
+  box-sizing: border-box;
+  padding: 0 6px;
+}
+
+/* Цитата + подпись (как референс: скрипт по центру, автор справа мелким sans-serif) */
+.gv-wedding-quote {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  gap: 0.4em;
+}
+
+/* isida.png в блоке «Цветы…» — позиция/размер в script.js (ПК и мобилка) */
+.gv-isida-abs {
+  position: absolute;
+  z-index: 2;
+  pointer-events: none;
+  object-fit: contain;
+  box-sizing: border-box;
+}
+
+.gv-wedding-quote__author {
+  align-self: stretch;
+  text-align: right;
+  font-family:
+    'Jura',
+    system-ui,
+    -apple-system,
+    'Segoe UI',
+    Roboto,
+    Arial,
+    sans-serif;
+  font-size: clamp(13px, 3.22vw, 22px);
+  font-weight: 400;
+  letter-spacing: 0.02em;
+  line-height: 1.35;
+  color: #9a9a9a;
+  padding: 0.15em 4px 0 8px;
+}
+
+.gv-place-section-title {
+  margin-bottom: 10px;
+}
+
+.tn-atom[field='tn_text_1767984072277000001'],
+.tn-atom[field='tn_text_1767991414658000001'] {
+  margin-bottom: 10px;
+}
+
+/* MegaTimer полностью удалён из проекта. */
+
+.gv-countdown-title {
+  color: #711717 !important;
+  font-size: var(--gv-ct-title) !important;
+  line-height: 1.03 !important;
+  font-family: var(--font-script) !important;
+  font-weight: 400 !important;
+  white-space: nowrap !important;
+  flex-shrink: 0;
+  width: auto;
+  max-width: none;
+  padding-inline: 0;
+  margin-inline: 0;
+  overflow-wrap: normal;
+  transform: translateX(-5px);
+}
+
+.gv-countdown {
+  margin-top: 0 !important;
+  display: flex !important;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: center !important;
+  align-items: flex-start;
+  align-self: center;
+  width: fit-content;
+  max-width: 100%;
+  /* Кегль ряда = цифры: em/ch в gap — от размера таймера; ~один пробел между блоками */
+  font-size: var(--gv-ct-digit);
+  --gv-ct-row-gap: 0.57em;
+  /* Одинаковые промежутки: блок — : — блок (разделители в разметке, не ::after). */
+  gap: var(--gv-ct-row-gap) !important;
+  color: #771919 !important;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+}
+
+.gv-countdown__sep {
+  flex: 0 0 auto;
+  align-self: flex-start;
+  font-size: var(--gv-ct-colon) !important;
+  line-height: 1;
+  color: #771919 !important;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+  font-weight: 500;
+  padding-top: 0.08em;
+  user-select: none;
+}
+
+.gv-countdown--native {
+  margin-top: 0 !important;
+  width: 100%;
+  gap: 14px !important;
+  color: #771919 !important;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+}
+
+.gv-countdown--native .gv-countdown__item {
+  min-width: 50px !important;
+}
+
+.gv-countdown--native .gv-countdown__item:not(:last-child)::after {
+  right: -9px !important;
+  top: 0.16em !important;
+  font-size: 32px !important;
+}
+
+.gv-countdown--native .gv-countdown__item span {
+  font-size: 33px !important;
+  font-weight: 500 !important;
+  line-height: 1 !important;
+}
+
+.gv-countdown--native .gv-countdown__item small {
+  margin-top: 1px !important;
+  font-size: 12px !important;
+  color: #8e8e8e !important;
+  font-family: 'Jura', system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif !important;
+  letter-spacing: 0.01em !important;
+}
+
+@media screen and (max-width: 640px) {
+  .gv-countdown--native {
+    gap: 0 !important;
+    justify-content: center !important;
+    width: 100%;
+    max-width: min(360px, 100vw - 24px);
+    margin-left: auto;
+    margin-right: auto;
+    box-sizing: border-box;
+  }
+
+  .gv-countdown--native .gv-countdown__item {
+    flex: 1 1 0 !important;
+    min-width: 0 !important;
+    padding-inline: 1px;
+    box-sizing: border-box;
+  }
+
+  .gv-countdown--native .gv-countdown__item:not(:last-child)::after {
+    right: 0 !important;
+    left: auto !important;
+    top: 0.14em !important;
+    transform: translateX(50%) !important;
+    font-size: 19px !important;
+  }
+
+  .gv-countdown--native .gv-countdown__item span {
+    font-size: 22px !important;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gv-countdown--native .gv-countdown__item small {
+    font-size: 9px !important;
+  }
+}
+
+.gv-countdown__item {
+  flex: 0 0 auto !important;
+  width: auto !important;
+  min-width: 0 !important;
+  text-align: center !important;
+  position: relative;
+}
+
+.gv-countdown__item span {
+  display: block !important;
+  font-size: 1em !important;
+  line-height: 1 !important;
+  color: #771919 !important;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+  font-weight: 500 !important;
+  font-variant-numeric: tabular-nums;
+}
+
+.gv-countdown__item small {
+  display: block !important;
+  margin-top: 3px !important;
+  font-size: calc(var(--gv-ct-label) / var(--gv-ct-digit) * 1em) !important;
+  line-height: 1.2 !important;
+  text-transform: lowercase !important;
+  font-family: 'Playfair Display', Georgia, 'Times New Roman', serif !important;
+  font-weight: 400 !important;
+  color: #771919 !important;
+  opacity: 0.92 !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* Узкие экраны (как у Tilda ≤1199px): заголовок «До свадьбы…» по центру, симметричные поля */
+@media screen and (max-width: 1199px) {
+  .tn-atom:has(.gv-countdown-block) {
+    display: flex !important;
+    flex-direction: column !important;
+    align-items: center !important;
+    text-align: center !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  .gv-countdown-block {
+    /* display/flex/column/align уже в базовом блоке */
+    width: 100%;
+    max-width: 100%;
+    padding-left: env(safe-area-inset-left, 0px);
+    padding-right: env(safe-area-inset-right, 0px);
+    box-sizing: border-box;
+    transform-origin: center top;
+  }
+
+  .gv-countdown-title {
+    text-align: center !important;
+    margin-inline: auto;
+    white-space: nowrap !important;
+    overflow-wrap: normal;
+    hyphens: manual;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .gv-countdown-block {
+    --gv-ct-title: clamp(26px, 8.5vw, 40px);
+  }
+
+  .gv-countdown {
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+/* Между анкетой гостя (#rec1770161371) и сердечком Group_481 (#rec1770173371) — ПК и мобилка */
+
+/* Анкета гостя (имя, песня и т.д.): на мобилке единый кегль 16px для подписей, полей и кнопки */
+@media screen and (max-width: 1199px) {
+  #rec1770161371 .t-input-title,
+  #rec1770161371 input.t-input,
+  #rec1770161371 textarea.t-input,
+  #rec1770161371 .t-submit,
+  #rec1770161371 button.t-submit {
+    font-size: 14px !important;
+  }
+
+  #rec1770161371 input.t-input::placeholder,
+  #rec1770161371 textarea.t-input::placeholder {
+    font-size: 14px !important;
+  }
+}
+
+.gv-telegram-cta-desktop {
+  display: block;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 100%;
+  margin: 0;
+  padding: 18px 0 24px;
+  background-color: var(--cream);
+  /* translateY к сердцу — иначе следующий #rec перекрывает ряд своим фоном */
+  position: relative;
+  z-index: 12;
+  overflow: visible;
+}
+
+@media screen and (min-width: 1200px) {
+  .gv-telegram-cta-desktop {
+    padding: 28px 0 36px;
+  }
+}
+
+/* Как у T396 с Group_481: зона 1200px по центру вьюпорта */
+.gv-telegram-cta-desktop__inner {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 20px;
+  text-align: center;
+  overflow: visible;
+}
+
+.gv-telegram-cta-desktop__text {
+  margin: 0 0 18px;
+  font-family: var(--font-script);
+  font-size: clamp(26px, 2.4vw, 38px);
+  line-height: 1.3;
+  color: var(--wine);
+  text-align: center;
+}
+
+.gv-telegram-cta-desktop__visual {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+
+.gv-telegram-cta-desktop__link {
+  display: inline-block;
+  line-height: 0;
+  flex: 0 0 auto;
+}
+
+.gv-telegram-cta-desktop__link:focus-visible {
+  outline: 2px solid var(--wine);
+  outline-offset: 4px;
+}
+
+@media screen and (max-width: 1199px) {
+  .gv-telegram-cta-desktop__inner {
+    padding: 0 16px;
+  }
+
+  .gv-telegram-cta-desktop__text {
+    margin: 0 0 12px;
+    font-size: clamp(26px, 7vw, 33px);
+    line-height: 1.25;
+  }
+
+  .gv-telegram-cta-desktop__visual {
+    gap: 8px;
+    transform: translate(-4px, 0px);
+  }
+
+  .gv-telegram-cta-desktop__btn-img {
+    display: block;
+    height: auto;
+    max-height: min(101.2px, 25.3vw);
+    width: auto;
+    max-width: min(230px, 63.25vw);
+    pointer-events: none;
+  }
+
+  .gv-telegram-cta-desktop__link {
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+
+/* ПК: кнопка крупнее */
+@media screen and (min-width: 1200px) {
+  .gv-telegram-cta-desktop__btn-img {
+    display: block;
+    height: auto;
+    max-height: min(180px, 28vh);
+    width: auto;
+    max-width: min(940px, 42vw);
+    /* Клики попадают в <a>, а не в дочерний img */
+    pointer-events: none;
+  }
+
+  /* Совпадает с мобильным блоком .gv-telegram-cta-desktop__link (только размер картинки выше) */
+  .gv-telegram-cta-desktop__link {
+    position: relative;
+    z-index: 1;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    -webkit-tap-highlight-color: transparent;
+  }
+}
+

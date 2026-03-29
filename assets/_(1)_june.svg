@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="735" height="157" viewBox="0 0 735 157" fill="none" role="img" aria-label="Наш июнь...">
+  <defs>
+    <style>
+      @font-face {
+        font-family: 'Marck Script Embedded';
+        font-style: normal;
+        font-weight: 400;
+        src: url('https://fonts.gstatic.com/s/marckscript/v22/nwpTtK2oNgBA3Or78gapdwuyzCg_WMM.woff2') format('woff2');
+      }
+    </style>
+  </defs>
+  <text x="28" y="106" fill="#771919" font-size="112" font-style="normal" font-weight="400" font-family="'Marck Script Embedded', 'Marck Script', cursive" letter-spacing="0">
+    Наш июнь...
+  </text>
+</svg>
