@@ -168,7 +168,7 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Мобилка: зазор под нижним краем последнего слоя над купидоном */
       isidaMobileGapBelowAnchorPx: 12,
       /** Мобилка: макс. ширина isida как доля ширины артборда (~левая половина экрана) */
-      isidaMobileMaxWidthFraction: 0.5,
+      isidaMobileMaxWidthFraction: 0.75,
       /** Мобилка: мин. зазор между низом isida и верхом купидона */
       isidaMobileGapAboveCupidPx: 10,
       /** Мобилка: если не нашли якорь по слоям — отступ «виртуального» текста над купидоном (px) */
@@ -177,7 +177,7 @@ document.addEventListener('DOMContentLoaded', () => {
        * Мобилка: визуальный масштаб (1.5 ≈ +50%). Через CSS transform — ширина в вёрстке ограничена
        * зазором до купидона, поэтому простое увеличение width/height откатывалось clamp’ом и не работало.
        */
-      isidaMobileSizeScale: 1.55,
+      isidaMobileSizeScale: 1.8,
       /**
        * Мобилка: поднять isida ближе к тексту («На свадьбу принято дарить цветы»): доля высоты артборда
        * вычитается из top (0.1 = 10%). 0 — не поднимать (иначе наезжает на заголовок «Цветы…»).
