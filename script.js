@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Сдвиг вправо: доля от ширины того же кадра (ПК) */
       isidaShiftRightRatio: 0.35,
       /** Мобилка: отступ isida от левого края артборда (px) */
-      isidaMobilePadPx: 10,
+      isidaMobilePadPx: 5,
       /** Мобилка: зазор под слоем с абзацем про цветы (если задан flowersBodyDataElemId) */
       isidaMobileGapBelowBodyPx: 10,
       /** Мобилка: зазор под нижним краем последнего слоя над купидоном */
@@ -1161,7 +1161,7 @@ document.addEventListener('DOMContentLoaded', () => {
           top = minTopReq;
         }
 
-        const leftPx = Math.max(8, Math.round(padPx));
+        const leftPx = Math.max(5, Math.round(padPx));
 
         // Требование: на мобилке isida должен иметь тот же размер, что и купидон,
         // при этом top/left не меняем (только width/height).
