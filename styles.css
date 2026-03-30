@@ -942,7 +942,7 @@ body {
   .gv-telegram-cta-desktop {
     padding: 12px 0 22px;
     /* Высокий z-index рисовал блок поверх дресс-кода при скролле; в потоке достаточно auto */
-    z-index: auto;
+    z-index: 12;
   }
 
   .gv-telegram-cta-desktop__inner {
