@@ -117,11 +117,22 @@ document.addEventListener('DOMContentLoaded', () => {
       isidaImg.src = './assets/isida.PNG';
     });
 
+    /*
+     * Аварийный таймаут: если прелоадер по какой-либо причине не получит
+     * класс display_none (ошибка скрипта, браузерный баг, офлайн), контент
+     * всё равно покажется через 8 секунд. Таймаут сбрасывается при штатном
+     * завершении через finish().
+     */
+    const gvPreloadFallbackTimer = setTimeout(() => {
+      if (allrecordsEl) allrecordsEl.classList.remove('gv-mobile-preload');
+    }, 8000);
+
     Promise.all([isidaPreload, ...imgs.map(preloadOneImg)])
       .catch(() => null)
       .finally(() => {
         const loaderEl = document.querySelector('.nl_reploader_father');
         const finish = () => {
+          clearTimeout(gvPreloadFallbackTimer);
           if (allrecordsEl) allrecordsEl.classList.remove('gv-mobile-preload');
         };
 
@@ -151,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
     guestTelegramCta: {
       text: 'Подписывайтесь на наш Telegram-канал',
       /** ≤1199px: заголовок над кнопкой tg */
-      mobileText: 'Подписывайтесь на наш Telegram-канал',
+      mobileText: 'Подписывайтесь в Telegram канал',
       /** Ссылка на группу (t.me/...). «#» — заглушка, клик блокируется как у остальных telegram-заглушек. */
       telegramHref: 'https://t.me/+9bvUQzNKcwgzYmYy',
       buttonImg: './assets/tg.png',
@@ -257,7 +268,7 @@ document.addEventListener('DOMContentLoaded', () => {
        * ≤1199px: на сколько px увеличить высоту полосы фона (::before / --gv-hero-fon-h) вниз
        * (к дате и музыке), без сдвига верха.
        */
-      mobileFonBandExtendDownPx: 150,
+      mobileFonBandExtendDownPx: 120,
       /**
        * ≤1199px: слой с картинкой noroot(1).png — прибавка к height и сдвиг top вверх на тот же px
        * (рост «вверх» относительно макета Tilda).
@@ -1286,7 +1297,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Мобилка: поднять только isida на 15% от его высоты.
-        top = Math.max(8, top - Math.round(h * 0.25));
+        top = Math.max(8, top - Math.round(h * 0.15));
         if (minTopFromTitle > 0) top = Math.max(top, minTopFromTitle);
 
         isidaEl.style.setProperty('left', `${leftPx}px`, IMP);
@@ -1930,4 +1941,45 @@ document.addEventListener('DOMContentLoaded', () => {
       alignGuestTelegramCtaWithHeart();
     }, 120);
   });
+
+  /*
+   * Смена ориентации устройства: после поворота viewport оседает ~300-400ms.
+   * Пересчитываем все зависящие от ширины экрана layout-параметры.
+   * Используем и 'orientationchange', и matchMedia listener для максимальной
+   * совместимости (некоторые браузеры не поддерживают orientationchange).
+   */
+  let orientationT = null;
+  const handleOrientationChange = () => {
+    clearTimeout(orientationT);
+    // Более длинная задержка на мобилке: адресная строка + перерисовка браузера
+    const delay = window.matchMedia('(max-width: 1199px)').matches ? 450 : 200;
+    orientationT = setTimeout(() => {
+      const isMobileAfter = window.matchMedia('(max-width: 1199px)').matches;
+      applyHeroFonBandHeight();
+      syncGuestTelegramCtaHeadline();
+      if (isMobileAfter) {
+        fitDressCodeArtboardHeight();
+        fixMobileHeroDateLayerForMobile();
+        resetMobileGuestTelegramLayout();
+        positionIsidaBesideFlowersCupid();
+      } else {
+        ensureGuestTelegramCtaBeforeHeart();
+        alignGuestTelegramCtaWithHeart();
+        fitDressCodeArtboardHeight();
+      }
+    }, delay);
+  };
+
+  window.addEventListener('orientationchange', handleOrientationChange);
+
+  // Дополнительный слушатель через matchMedia (планшеты и некоторые браузеры
+  // вызывают resize, но не orientationchange при повороте).
+  const orientationMq = window.matchMedia('(orientation: landscape)');
+  const orientationMqListener = () => handleOrientationChange();
+  if (orientationMq.addEventListener) {
+    orientationMq.addEventListener('change', orientationMqListener);
+  } else if (orientationMq.addListener) {
+    // Safari < 14 / старые браузеры
+    orientationMq.addListener(orientationMqListener);
+  }
 });
