@@ -1163,6 +1163,17 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const leftPx = Math.max(8, Math.round(padPx));
 
+        // Требование: на мобилке isida должен иметь тот же размер, что и купидон,
+        // при этом top/left не меняем (только width/height).
+        const cupidWLayout = Math.round(cu.width * vpToLayout);
+        const cupidHLayout = Math.round(cu.height * vpToLayout);
+        if (Number.isFinite(cupidWLayout) && cupidWLayout > 0 && Number.isFinite(cupidHLayout) && cupidHLayout > 0) {
+          w = cupidWLayout;
+          h = cupidHLayout;
+          // Отключаем transform, чтобы финальный size был именно равен width/height.
+          sizeScale = 1;
+        }
+
         isidaEl.style.setProperty('left', `${leftPx}px`, IMP);
         isidaEl.style.setProperty('top', `${top}px`, IMP);
         isidaEl.style.setProperty('width', `${w}px`, IMP);
