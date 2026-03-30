@@ -909,7 +909,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (gvDressCodeHeightFrozen && dressMobileMq.matches) return;
 
     const runMeasure = () => {
-      if (!dressMobileMq.matches) {
+      if (dressMobileMq.matches) {
         clearDressCodeArtboardInlineHeights();
         gvDressCodeArtboardLastHeight = 0;
         gvDressCodeWrapLastMinHeight = 0;
