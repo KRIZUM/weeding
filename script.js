@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
        * ≤1199px: на сколько px увеличить высоту полосы фона (::before / --gv-hero-fon-h) вниз
        * (к дате и музыке), без сдвига верха.
        */
-      mobileFonBandExtendDownPx: 110,
+      mobileFonBandExtendDownPx: 130,
       /**
        * ≤1199px: слой с картинкой noroot(1).png — прибавка к height и сдвиг top вверх на тот же px
        * (рост «вверх» относительно макета Tilda).
