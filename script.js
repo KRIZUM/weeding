@@ -863,9 +863,15 @@ document.addEventListener('DOMContentLoaded', () => {
         if (getComputedStyle(el).display === 'none') return;
         const layer = el.classList?.contains('tn-elem') ? el : el.closest?.('.tn-elem');
         if (layer && layer.offsetParent === artboard) {
-          const b = layer.offsetTop + layer.offsetHeight;
-          if (b > maxBottomLayout) maxBottomLayout = b;
-          return;
+          // Важный кейс: ref-изображения (tn-elem[data-elem-id="1767984738562"]) могут
+          // иметь "hug" height (offsetHeight меньше фактической из-за overflow: visible).
+          // Тогда используем getBoundingClientRect(), чтобы не занижать низ слоя.
+          const elemId = layer.getAttribute('data-elem-id');
+          if (elemId !== '1767984738562') {
+            const b = layer.offsetTop + layer.offsetHeight;
+            if (b > maxBottomLayout) maxBottomLayout = b;
+            return;
+          }
         }
         const r = el.getBoundingClientRect();
         if (r.width < 1 && r.height < 1) return;
