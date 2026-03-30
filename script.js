@@ -78,6 +78,65 @@ document.addEventListener('DOMContentLoaded', () => {
     duplicatePlaceTime: '[data-elem-id="1767989099506"]',
   };
 
+  // Мобилка: чтобы при первом визите не было наложений/“уездов” из‑за lazy‑догрузки,
+  // прячем всё до предзагрузки критических картинок (дресс-код + форма + isida).
+  const gvMobilePreload =
+    window.matchMedia && window.matchMedia('(max-width: 1199px)').matches;
+  if (gvMobilePreload) {
+    const allrecordsEl = document.querySelector(SEL.allrecords);
+    if (allrecordsEl) allrecordsEl.classList.add('gv-mobile-preload');
+
+    const preloadOneImg = (img) =>
+      new Promise((resolve) => {
+        if (!img) return resolve();
+        const ok = img.complete && (img.naturalWidth > 0 || img.naturalHeight > 0);
+        if (ok) return resolve();
+        const done = () => resolve();
+        img.addEventListener('load', done, { once: true });
+        img.addEventListener('error', done, { once: true });
+      });
+
+    const dressRecEl = document.querySelector(SEL.dressCodeRec);
+    const formRecEl = document.getElementById('rec1770161371');
+    const preloadRoots = [dressRecEl, formRecEl].filter(Boolean);
+    const imgs = preloadRoots.flatMap((r) => Array.from(r.querySelectorAll('img[src]')));
+    // Принудительно включаем eager, чтобы браузер начал загрузку сразу.
+    imgs.forEach((img) => {
+      try {
+        img.loading = 'eager';
+      } catch (_) {
+        /* ignore */
+      }
+    });
+
+    const isidaPreload = new Promise((resolve) => {
+      const isidaImg = new Image();
+      isidaImg.decoding = 'async';
+      isidaImg.onload = () => resolve();
+      isidaImg.onerror = () => resolve();
+      isidaImg.src = './assets/isida.PNG';
+    });
+
+    Promise.all([isidaPreload, ...imgs.map(preloadOneImg)])
+      .catch(() => null)
+      .finally(() => {
+        const loaderEl = document.querySelector('.nl_reploader_father');
+        const finish = () => {
+          if (allrecordsEl) allrecordsEl.classList.remove('gv-mobile-preload');
+        };
+
+        if (!loaderEl) return finish();
+        if (loaderEl.classList.contains('display_none')) return finish();
+
+        const mo = new MutationObserver(() => {
+          if (!loaderEl.classList.contains('display_none')) return;
+          mo.disconnect();
+          finish();
+        });
+        mo.observe(loaderEl, { attributes: true, attributeFilter: ['class'] });
+      });
+  }
+
   const CONFIG = {
     theme: { wine: '#711717' },
     // Заполни после того, как создашь Google Apps Script Web App.
