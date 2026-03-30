@@ -152,6 +152,8 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     flowersSection: {
       isidaUrl: './assets/isida.PNG',
+      /** Мобилка: слой Zero с абзацем «На свадьбу принято…» (ниже isida только после него) */
+      flowersBodyDataElemId: '1767984613826000002',
       cupidFileRx: /group_497\.png|group_496\.png/i,
       /** Вертикальный зазор между isida и блоком купидона (px) */
       isidaStackGapPx: 16,
@@ -160,7 +162,9 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Сдвиг вправо: доля от ширины того же кадра (ПК) */
       isidaShiftRightRatio: 0.35,
       /** Мобилка: отступ isida от левого края артборда (px) */
-      isidaMobilePadPx: 22,
+      isidaMobilePadPx: 10,
+      /** Мобилка: зазор под слоем с абзацем про цветы (если задан flowersBodyDataElemId) */
+      isidaMobileGapBelowBodyPx: 14,
       /** Мобилка: зазор под нижним краем последнего слоя над купидоном */
       isidaMobileGapBelowAnchorPx: 12,
       /** Мобилка: макс. ширина isida как доля ширины артборда (~левая половина экрана) */
@@ -832,6 +836,8 @@ document.addEventListener('DOMContentLoaded', () => {
       el.style.removeProperty('min-height');
     });
     rec.querySelector('.t396__artboard')?.style.removeProperty('--initial-scale-height');
+    rec.style.removeProperty('min-height');
+    rec.style.removeProperty('height');
   };
 
   /** На узкой вёрстке подгоняем высоту T396 под самый нижний слой (референсы и остальной текст блока). */
@@ -847,23 +853,37 @@ document.addEventListener('DOMContentLoaded', () => {
       const artboard = rec.querySelector('.t396__artboard');
       if (!artboard) return;
 
-      const artTop = artboard.getBoundingClientRect().top;
-      let maxBottom = 0;
-      const consider = (el) => {
+      const ar = artboard.getBoundingClientRect();
+      const oh = artboard.offsetHeight;
+      /* Высота в CSS T396 — в «логических» px артборда; визуальный rect после scale — пересчёт. */
+      const vpToLayout = oh > 0 && ar.height > 0.5 ? oh / ar.height : 1;
+      let maxBottomLayout = 0;
+      const considerLayoutBottom = (el) => {
+        if (!el || !artboard.contains(el)) return;
         if (getComputedStyle(el).display === 'none') return;
+        const layer = el.classList?.contains('tn-elem') ? el : el.closest?.('.tn-elem');
+        if (layer && layer.offsetParent === artboard) {
+          const b = layer.offsetTop + layer.offsetHeight;
+          if (b > maxBottomLayout) maxBottomLayout = b;
+          return;
+        }
         const r = el.getBoundingClientRect();
         if (r.width < 1 && r.height < 1) return;
-        const bottom = r.bottom - artTop;
-        if (bottom > maxBottom) maxBottom = bottom;
+        const b = (r.bottom - ar.top) * vpToLayout;
+        if (b > maxBottomLayout) maxBottomLayout = b;
       };
-      /* Все слои внутри артборда (не только .t396__elem.tn-elem — иначе на мобилке терялись низ и референсы) */
-      artboard.querySelectorAll('.tn-elem').forEach(consider);
-      rec.querySelectorAll('.gv-quote-block').forEach(consider);
-      rec.querySelectorAll('img[data-gv-isida]').forEach(consider);
+      artboard.querySelectorAll('.tn-elem').forEach((layer) => considerLayoutBottom(layer));
+      rec.querySelectorAll('.gv-quote-block').forEach(considerLayoutBottom);
+      rec.querySelectorAll('img[data-gv-isida]').forEach((im) => {
+        const r = im.getBoundingClientRect();
+        if (r.width < 1 && r.height < 1) return;
+        const b = (r.bottom - ar.top) * vpToLayout;
+        if (b > maxBottomLayout) maxBottomLayout = b;
+      });
 
-      if (maxBottom < 80) return;
+      if (maxBottomLayout < 80) return;
 
-      const newH = Math.ceil(maxBottom + 96);
+      const newH = Math.ceil(maxBottomLayout + 120);
       const targets = [
         artboard,
         ...rec.querySelectorAll('.t396__filter, .t396__carrier'),
@@ -873,6 +893,8 @@ document.addEventListener('DOMContentLoaded', () => {
         el.style.setProperty('min-height', `${newH}px`, IMP);
       });
       artboard.style.setProperty('--initial-scale-height', `${newH}px`);
+      rec.style.setProperty('min-height', `${newH}px`, IMP);
+      rec.style.setProperty('height', 'auto', IMP);
     };
 
     const imgs = rec.querySelectorAll('.gv-ref-pair img');
@@ -1009,7 +1031,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (isMobile) {
         const padRaw = Number(fs.isidaMobilePadPx);
-        const padPx = Number.isFinite(padRaw) ? padRaw : 14;
+        const padPx = Number.isFinite(padRaw) ? padRaw : 10;
         const gapBelowRaw = Number(fs.isidaMobileGapBelowAnchorPx);
         const gapBelow = Number.isFinite(gapBelowRaw) ? gapBelowRaw : 12;
         const maxFracRaw = Number(fs.isidaMobileMaxWidthFraction);
@@ -1018,18 +1040,33 @@ document.addEventListener('DOMContentLoaded', () => {
         const gapAbove = Number.isFinite(gapAboveRaw) ? gapAboveRaw : 10;
         const fallbackRaw = Number(fs.isidaMobileFallbackGapAboveCupidPx);
         const fallbackGap = Number.isFinite(fallbackRaw) ? fallbackRaw : 72;
+        const gapBodyRaw = Number(fs.isidaMobileGapBelowBodyPx);
+        const gapBelowBody = Number.isFinite(gapBodyRaw) && gapBodyRaw >= 0 ? gapBodyRaw : 14;
 
-        const anchorBottom = mobileAnchorBottomAboveCupid();
-        const anchorClientY =
-          anchorBottom != null ? anchorBottom : cu.top - fallbackGap;
+        const oh = artboard.offsetHeight;
+        const vpToLayout = oh > 0 && ab.height > 0.5 ? oh / ab.height : 1;
+        const bottomLayoutOfLayer = (layer) => {
+          if (!layer || !artboard.contains(layer)) return 0;
+          if (getComputedStyle(layer).display === 'none') return 0;
+          if (layer.offsetParent === artboard) return layer.offsetTop + layer.offsetHeight;
+          const lr = layer.getBoundingClientRect();
+          if (lr.height < 1) return 0;
+          return (lr.bottom - ab.top) * vpToLayout;
+        };
+
+        const anchorBottomVp = mobileAnchorBottomAboveCupid();
+        const anchorLayoutY =
+          anchorBottomVp != null
+            ? (anchorBottomVp - ab.top) * vpToLayout
+            : (cu.top - ab.top) * vpToLayout - fallbackGap;
 
         const natW = isidaEl.naturalWidth;
         const natH = isidaEl.naturalHeight;
         const ratio =
           natW > 0 && natH > 0 ? natW / natH : cu.width / Math.max(1, cu.height);
 
-        let maxW = Math.round(ab.width * maxFrac);
-        const cupidLeftRel = cu.left - ab.left;
+        let maxW = Math.round(ab.width * maxFrac * vpToLayout);
+        const cupidLeftRel = (cu.left - ab.left) * vpToLayout;
         maxW = Math.min(maxW, Math.max(48, Math.round(cupidLeftRel - padPx - 8)));
         let w = Math.max(40, maxW);
         let h = Math.round(w / Math.max(0.2, ratio));
@@ -1044,37 +1081,37 @@ document.addEventListener('DOMContentLoaded', () => {
           artboard.querySelectorAll('.gv-svg-title').forEach((titleEl) => {
             const tx = (titleEl.textContent || '').trim();
             if (!tx.includes('Цветы') && !tx.includes('подарк')) return;
-            const tr = titleEl.getBoundingClientRect();
-            if (tr.height < 4) return;
-            const gapTitle = 10;
-            minTopFromTitle = Math.max(
-              minTopFromTitle,
-              Math.round(tr.bottom - ab.top + gapTitle)
-            );
+            const wrap = titleEl.closest('.tn-elem');
+            const b = wrap ? bottomLayoutOfLayer(wrap) : (titleEl.getBoundingClientRect().bottom - ab.top) * vpToLayout;
+            if (b > 0) minTopFromTitle = Math.max(minTopFromTitle, Math.round(b + 10));
           });
         } catch (_) {
           /* ignore */
         }
 
         let minTopFromParagraph = 0;
-        try {
-          artboard.querySelectorAll('.tn-elem .tn-atom').forEach((atom) => {
-            const tx = (atom.textContent || '').replace(/\s+/g, ' ').trim();
-            if (tx.length < 25) return;
-            if (/Встретить красивую/i.test(tx)) return;
-            const isFlowersBody =
-              /На свадьбу|кошечк|ядовит|букет|любопытн|лили|цветы принято/i.test(tx);
-            if (!isFlowersBody) return;
-            const tr = atom.getBoundingClientRect();
-            if (tr.height < 4) return;
-            const gapP = 18;
-            minTopFromParagraph = Math.max(
-              minTopFromParagraph,
-              Math.round(tr.bottom - ab.top + gapP)
-            );
-          });
-        } catch (_) {
-          /* ignore */
+        const bodyId = String(fs.flowersBodyDataElemId || '').trim();
+        if (bodyId) {
+          const bodyLayer = artboard.querySelector(`.tn-elem[data-elem-id="${bodyId}"]`);
+          const bl = bodyLayer ? bottomLayoutOfLayer(bodyLayer) : 0;
+          if (bl > 0) minTopFromParagraph = Math.round(bl + gapBelowBody);
+        }
+        if (minTopFromParagraph <= 0) {
+          try {
+            artboard.querySelectorAll('.tn-elem .tn-atom').forEach((atom) => {
+              const tx = (atom.textContent || '').replace(/\s+/g, ' ').trim();
+              if (tx.length < 25) return;
+              if (/Встретить красивую/i.test(tx)) return;
+              const isFlowersBody =
+                /На свадьбу|кошечк|ядовит|букет|любопытн|лили|цветы принято/i.test(tx);
+              if (!isFlowersBody) return;
+              const wrap = atom.closest('.tn-elem');
+              const bl = wrap ? bottomLayoutOfLayer(wrap) : (atom.getBoundingClientRect().bottom - ab.top) * vpToLayout;
+              if (bl > 0) minTopFromParagraph = Math.max(minTopFromParagraph, Math.round(bl + gapBelowBody));
+            });
+          } catch (_) {
+            /* ignore */
+          }
         }
 
         const liftTextFracRaw = Number(fs.isidaMobileLiftTowardsTextFraction);
@@ -1084,22 +1121,28 @@ document.addEventListener('DOMContentLoaded', () => {
         let top =
           minTopFromParagraph > 0
             ? minTopFromParagraph
-            : Math.round(anchorClientY - ab.top + gapBelow);
+            : Math.round(anchorLayoutY + gapBelow);
         if (minTopFromParagraph <= 0) {
-          top -= Math.round(ab.height * liftTextFrac);
+          top -= Math.round(oh * liftTextFrac);
         }
         if (minTopFromTitle > 0) top = Math.max(top, minTopFromTitle);
         if (minTopFromParagraph > 0) top = Math.max(top, minTopFromParagraph);
 
+        const cupWrap = cupidImg.closest('.tn-elem');
+        const cupTopLayout =
+          cupWrap && cupWrap.offsetParent === artboard
+            ? cupWrap.offsetTop
+            : (cu.top - ab.top) * vpToLayout;
+
         const shrinkScaleToFitAboveCupid = () => {
           let hVis = Math.round(h * sizeScale);
-          let maxTop = Math.round(cu.top - ab.top - gapAbove - hVis);
-          while (top > maxTop && sizeScale > 1.02) {
+          let maxTopL = Math.round(cupTopLayout - gapAbove - hVis);
+          while (top > maxTopL && sizeScale > 1.02) {
             sizeScale = Math.max(1, Math.round((sizeScale - 0.08) * 100) / 100);
             hVis = Math.round(h * sizeScale);
-            maxTop = Math.round(cu.top - ab.top - gapAbove - hVis);
+            maxTopL = Math.round(cupTopLayout - gapAbove - hVis);
           }
-          return maxTop;
+          return maxTopL;
         };
 
         let maxTop = shrinkScaleToFitAboveCupid();
@@ -1116,7 +1159,7 @@ document.addEventListener('DOMContentLoaded', () => {
           top = minTopReq;
         }
 
-        const leftPx = Math.max(8, Math.round(ab.width / 2 - w / 2));
+        const leftPx = Math.max(8, Math.round(padPx));
 
         isidaEl.style.setProperty('left', `${leftPx}px`, IMP);
         isidaEl.style.setProperty('top', `${top}px`, IMP);
@@ -1124,7 +1167,7 @@ document.addEventListener('DOMContentLoaded', () => {
         isidaEl.style.setProperty('height', `${h}px`, IMP);
         if (sizeScale !== 1) {
           isidaEl.style.setProperty('transform', `scale(${sizeScale})`, IMP);
-          isidaEl.style.setProperty('transform-origin', 'center top', IMP);
+          isidaEl.style.setProperty('transform-origin', 'left top', IMP);
         } else {
           isidaEl.style.removeProperty('transform');
           isidaEl.style.removeProperty('transform-origin');
