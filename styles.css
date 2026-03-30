@@ -361,7 +361,8 @@ body {
     margin-left: 0 !important;
     width: max-content !important;
     max-width: min(100vw - 32px, 1100px) !important;
-    transform: translate(-50%, -28px) !important;
+    /* Поднять заголовок «Дорогие и близкие» на ~7% вверх (только мобилка). */
+    transform: translate(-50%, calc(-28px - 7%)) !important;
     transform-origin: center center !important;
   }
 }
@@ -872,7 +873,9 @@ body {
 /* Анкета гостя (имя, песня и т.д.): на мобилке единый кегль 16px для подписей, полей и кнопки */
 @media screen and (max-width: 1199px) {
   #rec1770161371 {
-    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+    /* Убираем “белую полосу” между формой и Telegram-блоком */
+    padding-bottom: 0 !important;
+    margin-bottom: 0 !important;
   }
 
   #rec1770161371 .t-input-title,
@@ -951,7 +954,8 @@ body {
 
 @media screen and (max-width: 1199px) {
   .gv-telegram-cta-desktop {
-    padding: 12px 0 22px;
+    /* Без верхнего зазора — сразу после формы */
+    padding: 0 0 22px;
     /* Высокий z-index рисовал блок поверх дресс-кода при скролле; в потоке достаточно auto */
     z-index: 12;
   }
@@ -1014,4 +1018,3 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
 }
-
