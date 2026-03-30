@@ -484,7 +484,7 @@ body {
   .gv-ref-pair {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
+    gap: 0px;
   }
 
   .gv-ref-pair__img {
@@ -541,6 +541,14 @@ body {
 .reveal.is-visible {
   opacity: 1;
   transform: none;
+}
+
+/* Мобилка: не показываем верстку, пока критические картинки не догрузились */
+@media screen and (max-width: 1199px) {
+  #allrecords.gv-mobile-preload {
+    visibility: hidden !important;
+    opacity: 0 !important;
+  }
 }
 
 /* Заголовок + таймер: --gv-ct-title только для заголовка; цифры/подписи/«:» — ещё ×1.15 к прошлой итерации */
