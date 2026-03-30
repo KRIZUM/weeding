@@ -825,6 +825,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const dressMobileMq = window.matchMedia('(max-width: 1199px)');
   let gvDressCodeArtboardLastHeight = 0;
   let gvDressCodeWrapLastMinHeight = 0;
+  let gvDressCodeHeightFrozen = false;
 
   const clearDressCodeArtboardInlineHeights = () => {
     const rec = document.getElementById(DRESS_REC_ID);
@@ -846,12 +847,14 @@ document.addEventListener('DOMContentLoaded', () => {
   const fitDressCodeArtboardHeight = () => {
     const rec = document.getElementById(DRESS_REC_ID);
     if (!rec) return;
+    if (gvDressCodeHeightFrozen && dressMobileMq.matches) return;
 
     const runMeasure = () => {
       if (!dressMobileMq.matches) {
         clearDressCodeArtboardInlineHeights();
         gvDressCodeArtboardLastHeight = 0;
         gvDressCodeWrapLastMinHeight = 0;
+        gvDressCodeHeightFrozen = false;
         return;
       }
       const artboard = rec.querySelector('.t396__artboard');
@@ -937,6 +940,14 @@ document.addEventListener('DOMContentLoaded', () => {
       rec.style.setProperty('height', 'auto', IMP);
       gvDressCodeArtboardLastHeight = newH;
       gvDressCodeWrapLastMinHeight = wrapMinH;
+
+      // После полной догрузки референсов не продолжаем расширять секцию на каждом пересчёте
+      // (особенно когда ResizeObserver срабатывает при скролле/анимациях).
+      const refImgsNow = [...rec.querySelectorAll('.gv-ref-pair img')];
+      if (refImgsNow.length > 0) {
+        const anyPending = refImgsNow.some((img) => !img.complete || !img.naturalHeight);
+        if (!anyPending) gvDressCodeHeightFrozen = true;
+      }
     };
 
     const imgs = rec.querySelectorAll('.gv-ref-pair img');
@@ -1789,6 +1800,7 @@ document.addEventListener('DOMContentLoaded', () => {
   let dressResizeT = null;
   window.addEventListener('resize', () => {
     clearTimeout(dressResizeT);
+    gvDressCodeHeightFrozen = false;
     dressResizeT = setTimeout(fitDressCodeArtboardHeight, 120);
   });
   const onDressMqChange = () => fitDressCodeArtboardHeight();
