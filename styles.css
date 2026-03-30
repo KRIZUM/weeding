@@ -500,6 +500,11 @@ body {
     max-height: none !important;
   }
 
+  /* Убираем визуальный белый шов между двумя stacked-изображениями ref-* */
+  .gv-ref-pair__img + .gv-ref-pair__img {
+    margin-top: -4px;
+  }
+
   /*
    * Tilda вешает display:table на image-элемент — второй img в .gv-ref-pair не показывается.
    * Снимаем ограничение высоты у слоя и картинок.
@@ -1018,3 +1023,4 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
