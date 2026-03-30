@@ -1238,9 +1238,9 @@ document.addEventListener('DOMContentLoaded', () => {
           isidaEl.style.removeProperty('transform');
           isidaEl.style.removeProperty('transform-origin');
         }
-        requestAnimationFrame(() => {
-          if (window.matchMedia('(max-width: 1199px)').matches) fitDressCodeArtboardHeight();
-        });
+        // Важно: не запускаем fitDressCodeArtboardHeight отсюда.
+        // Иначе ResizeObserver/перерисовки isida могут вызывать повторные пересчёты высоты
+        // дресс-кода и приводить к "растущему" белому блоку при скролле.
         return;
       }
 
