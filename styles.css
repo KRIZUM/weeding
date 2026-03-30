@@ -282,6 +282,11 @@ body {
 }
 
 @media screen and (max-width: 1199px) {
+  /* Save the date должен быть выше шаров на мобильных */
+  #rec1770088991 .tn-elem[data-elem-id='1767983106241'] {
+    transform: translateY(-44px) !important;
+  }
+
   #rec1770088991::before {
     /* Пока JS не выставил --gv-hero-fon-url — мобильный кадр */
     background-image: var(--gv-hero-fon-url, url('./assets/fon-mobile.png'));
@@ -440,8 +445,8 @@ body {
   #rec1770135251 .t396__filter,
   #rec1770135251 .t396__carrier {
     /* Фиксируем мобильную высоту секции, чтобы форма всегда шла после референсов без наложения. */
-    height: 2150px !important;
-    min-height: 2150px !important;
+    height: 2100px !important;
+    min-height: 2100px !important;
     overflow: visible !important;
     max-height: none !important;
   }
@@ -524,6 +529,8 @@ body {
     margin-right: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
+    /* Убираем белую полосу перед блоком мужчин */
+    transform: translateY(-8px) !important;
   }
 
   #rec1770135251 .tn-elem[data-elem-id='1767984738562'] .tn-atom {
@@ -891,6 +898,8 @@ body {
     /* Убираем “белую полосу” между формой и Telegram-блоком */
     padding-bottom: 0 !important;
     margin-bottom: 0 !important;
+    /* Анкета должна начинаться ниже референсов */
+    margin-top: 20px !important;
   }
 
   #rec1770161371 .t-input-title,
@@ -988,6 +997,7 @@ body {
   .gv-telegram-cta-desktop__visual {
     gap: 8px;
     transform: none;
+    justify-content: center !important;
   }
 
   .gv-telegram-cta-desktop__btn-img {
@@ -1007,6 +1017,9 @@ body {
     align-items: center;
     justify-content: center;
     -webkit-tap-highlight-color: transparent;
+    margin-left: auto;
+    margin-right: auto;
+    transform: translateY(5%);
   }
 }
 
