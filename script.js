@@ -170,7 +170,7 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Мобилка: макс. ширина isida как доля ширины артборда (~левая половина экрана) */
       isidaMobileMaxWidthFraction: 0.75,
       /** Мобилка: мин. зазор между низом isida и верхом купидона */
-      isidaMobileGapAboveCupidPx: 8.5,
+      isidaMobileGapAboveCupidPx: 6.5,
       /** Мобилка: если не нашли якорь по слоям — отступ «виртуального» текста над купидоном (px) */
       isidaMobileFallbackGapAboveCupidPx: 72,
       /**
