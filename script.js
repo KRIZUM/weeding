@@ -1285,6 +1285,10 @@ document.addEventListener('DOMContentLoaded', () => {
           sizeScale = 1;
         }
 
+        // Мобилка: поднять только isida на 15% от его высоты.
+        top = Math.max(8, top - Math.round(h * 0.15));
+        if (minTopFromTitle > 0) top = Math.max(top, minTopFromTitle);
+
         isidaEl.style.setProperty('left', `${leftPx}px`, IMP);
         isidaEl.style.setProperty('top', `${top}px`, IMP);
         isidaEl.style.setProperty('width', `${w}px`, IMP);
