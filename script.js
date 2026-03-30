@@ -151,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
     guestTelegramCta: {
       text: 'Подписывайтесь на наш Telegram-канал',
       /** ≤1199px: заголовок над кнопкой tg */
-      mobileText: 'Подписывайтесь в Telegram канал',
+      mobileText: 'Подписывайтесь на наш Telegram-канал',
       /** Ссылка на группу (t.me/...). «#» — заглушка, клик блокируется как у остальных telegram-заглушек. */
       telegramHref: 'https://t.me/+9bvUQzNKcwgzYmYy',
       buttonImg: './assets/tg.png',
