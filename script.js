@@ -1251,6 +1251,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   /** Tilda / MutationObserver могут сдвинуть узел — кнопка оказывается в потоке у дресс-кода. */
   const ensureGuestTelegramCtaBeforeHeart = () => {
+    // На мобилке Telegram вставляется после формы, поэтому не переставляем его относительно heart.
+    if (window.matchMedia('(max-width: 1199px)').matches) return;
     const block = document.getElementById('gv-telegram-cta-desktop');
     const heart = document.getElementById(HEART_GROUP481_REC_ID);
     if (!block || !heart) return;
@@ -1336,8 +1338,14 @@ document.addEventListener('DOMContentLoaded', () => {
     inner.appendChild(visual);
     wrap.appendChild(inner);
 
-    heartRec.insertAdjacentElement('beforebegin', wrap);
-    ensureGuestTelegramCtaBeforeHeart();
+    const mobile = window.matchMedia('(max-width: 1199px)').matches;
+    if (mobile) {
+      // Требование: на мобилке блок Telegram должен идти ПОСЛЕ формы.
+      formRec.insertAdjacentElement('afterend', wrap);
+    } else {
+      heartRec.insertAdjacentElement('beforebegin', wrap);
+      ensureGuestTelegramCtaBeforeHeart();
+    }
   };
 
   const syncGuestTelegramCtaHeadline = () => {
