@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
        * ≤1199px: на сколько px увеличить высоту полосы фона (::before / --gv-hero-fon-h) вниз
        * (к дате и музыке), без сдвига верха.
        */
-      mobileFonBandExtendDownPx: 150,
+      mobileFonBandExtendDownPx: 60,
       /**
        * ≤1199px: слой с картинкой noroot(1).png — прибавка к height и сдвиг top вверх на тот же px
        * (рост «вверх» относительно макета Tilda).
@@ -856,13 +856,14 @@ document.addEventListener('DOMContentLoaded', () => {
         const bottom = r.bottom - artTop;
         if (bottom > maxBottom) maxBottom = bottom;
       };
-      rec.querySelectorAll('.t396__elem.tn-elem').forEach(consider);
-      /* isida — не .tn-elem, иначе артборд ниже референсов и картинку/референсы обрезает overflow */
+      /* Все слои внутри артборда (не только .t396__elem.tn-elem — иначе на мобилке терялись низ и референсы) */
+      artboard.querySelectorAll('.tn-elem').forEach(consider);
+      rec.querySelectorAll('.gv-quote-block').forEach(consider);
       rec.querySelectorAll('img[data-gv-isida]').forEach(consider);
 
       if (maxBottom < 80) return;
 
-      const newH = Math.ceil(maxBottom + 48);
+      const newH = Math.ceil(maxBottom + 96);
       const targets = [
         artboard,
         ...rec.querySelectorAll('.t396__filter, .t396__carrier'),
@@ -876,8 +877,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const imgs = rec.querySelectorAll('.gv-ref-pair img');
     const pending = [...imgs].filter((img) => !img.complete || !img.naturalHeight);
+    const run = () => requestAnimationFrame(runMeasure);
     if (pending.length === 0) {
-      requestAnimationFrame(runMeasure);
+      run();
       return;
     }
     Promise.all(
@@ -888,7 +890,8 @@ document.addEventListener('DOMContentLoaded', () => {
             img.addEventListener('error', resolve, { once: true });
           })
       )
-    ).then(() => requestAnimationFrame(runMeasure));
+    ).then(run);
+    setTimeout(run, 2200);
   };
 
   /** Сломанный src (404 на Linux/Vercel из‑за регистра имён) даёт иконку и ломает поток — прячем img. */
@@ -1031,16 +1034,11 @@ document.addEventListener('DOMContentLoaded', () => {
         let w = Math.max(40, maxW);
         let h = Math.round(w / Math.max(0.2, ratio));
 
-        const scaleRaw = Number(fs.isidaMobileSizeScale);
-        const sizeScale =
-          Number.isFinite(scaleRaw) && scaleRaw > 0 ? scaleRaw : 1;
-        const hVis = Math.round(h * sizeScale);
+        let sizeScale = (() => {
+          const scaleRaw = Number(fs.isidaMobileSizeScale);
+          return Number.isFinite(scaleRaw) && scaleRaw > 0 ? scaleRaw : 1;
+        })();
 
-        let top = Math.round(anchorClientY - ab.top + gapBelow);
-        const liftTextFracRaw = Number(fs.isidaMobileLiftTowardsTextFraction);
-        const liftTextFrac =
-          Number.isFinite(liftTextFracRaw) && liftTextFracRaw > 0 ? liftTextFracRaw : 0;
-        top -= Math.round(ab.height * liftTextFrac);
         let minTopFromTitle = 0;
         try {
           artboard.querySelectorAll('.gv-svg-title').forEach((titleEl) => {
@@ -1057,17 +1055,19 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_) {
           /* ignore */
         }
-        if (minTopFromTitle > 0) top = Math.max(top, minTopFromTitle);
 
         let minTopFromParagraph = 0;
         try {
           artboard.querySelectorAll('.tn-elem .tn-atom').forEach((atom) => {
             const tx = (atom.textContent || '').replace(/\s+/g, ' ').trim();
-            if (tx.length < 30) return;
-            if (!tx.includes('На свадьбу') && !tx.includes('кошечк')) return;
+            if (tx.length < 25) return;
+            if (/Встретить красивую/i.test(tx)) return;
+            const isFlowersBody =
+              /На свадьбу|кошечк|ядовит|букет|любопытн|лили|цветы принято/i.test(tx);
+            if (!isFlowersBody) return;
             const tr = atom.getBoundingClientRect();
             if (tr.height < 4) return;
-            const gapP = 14;
+            const gapP = 18;
             minTopFromParagraph = Math.max(
               minTopFromParagraph,
               Math.round(tr.bottom - ab.top + gapP)
@@ -1076,14 +1076,47 @@ document.addEventListener('DOMContentLoaded', () => {
         } catch (_) {
           /* ignore */
         }
+
+        const liftTextFracRaw = Number(fs.isidaMobileLiftTowardsTextFraction);
+        const liftTextFrac =
+          Number.isFinite(liftTextFracRaw) && liftTextFracRaw > 0 ? liftTextFracRaw : 0;
+
+        let top =
+          minTopFromParagraph > 0
+            ? minTopFromParagraph
+            : Math.round(anchorClientY - ab.top + gapBelow);
+        if (minTopFromParagraph <= 0) {
+          top -= Math.round(ab.height * liftTextFrac);
+        }
+        if (minTopFromTitle > 0) top = Math.max(top, minTopFromTitle);
         if (minTopFromParagraph > 0) top = Math.max(top, minTopFromParagraph);
 
-        const maxTop = Math.round(cu.top - ab.top - gapAbove - hVis);
-        if (top > maxTop) top = maxTop;
-        if (top < 8) top = 8;
+        const shrinkScaleToFitAboveCupid = () => {
+          let hVis = Math.round(h * sizeScale);
+          let maxTop = Math.round(cu.top - ab.top - gapAbove - hVis);
+          while (top > maxTop && sizeScale > 1.02) {
+            sizeScale = Math.max(1, Math.round((sizeScale - 0.08) * 100) / 100);
+            hVis = Math.round(h * sizeScale);
+            maxTop = Math.round(cu.top - ab.top - gapAbove - hVis);
+          }
+          return maxTop;
+        };
 
-        let leftPx = Math.round(ab.width / 2 - w / 2);
-        leftPx = Math.max(8, Math.min(leftPx, Math.round(ab.width - w - 8)));
+        let maxTop = shrinkScaleToFitAboveCupid();
+        if (top < 8) top = 8;
+        const minTopReq = Math.max(
+          8,
+          minTopFromParagraph || 0,
+          minTopFromTitle || 0
+        );
+        top = Math.max(top, minTopReq);
+        if (minTopReq <= maxTop) {
+          top = Math.min(top, maxTop);
+        } else {
+          top = minTopReq;
+        }
+
+        const leftPx = Math.max(8, Math.round(ab.width / 2 - w / 2));
 
         isidaEl.style.setProperty('left', `${leftPx}px`, IMP);
         isidaEl.style.setProperty('top', `${top}px`, IMP);
@@ -1138,6 +1171,44 @@ document.addEventListener('DOMContentLoaded', () => {
   const GUEST_FORM_REC_ID = 'rec1770161371';
   const HEART_GROUP481_REC_ID = 'rec1770173371';
 
+  /** Tilda / MutationObserver могут сдвинуть узел — кнопка оказывается в потоке у дресс-кода. */
+  const ensureGuestTelegramCtaBeforeHeart = () => {
+    const block = document.getElementById('gv-telegram-cta-desktop');
+    const heart = document.getElementById(HEART_GROUP481_REC_ID);
+    if (!block || !heart) return;
+    const parent = heart.parentElement;
+    if (!parent) return;
+    if (block.parentElement !== parent) {
+      parent.insertBefore(block, heart);
+      return;
+    }
+    if (block.nextElementSibling !== heart) {
+      parent.insertBefore(block, heart);
+    }
+  };
+
+  /** Мобилка: снять случайные inline top/transform (не выравниваем к сердцу). */
+  const resetMobileGuestTelegramLayout = () => {
+    if (!window.matchMedia('(max-width: 1199px)').matches) return;
+    const block = document.getElementById('gv-telegram-cta-desktop');
+    if (!block) return;
+    block.style.removeProperty('transform');
+    block.style.removeProperty('top');
+    block.style.removeProperty('left');
+    block.style.removeProperty('right');
+    block.style.removeProperty('bottom');
+    block.style.removeProperty('position');
+    block
+      .querySelectorAll(
+        '.gv-telegram-cta-desktop__inner, .gv-telegram-cta-desktop__visual, .gv-telegram-cta-desktop__link'
+      )
+      .forEach((el) => {
+        el.style.removeProperty('transform');
+        el.style.removeProperty('top');
+        el.style.removeProperty('left');
+      });
+  };
+
   /** Один раз: выравнивание tg + повтор после загрузки Group_481 (без align на каждый MutationObserver). */
   let gvTelegramAlignHooksDone = false;
 
@@ -1188,6 +1259,7 @@ document.addEventListener('DOMContentLoaded', () => {
     wrap.appendChild(inner);
 
     heartRec.insertAdjacentElement('beforebegin', wrap);
+    ensureGuestTelegramCtaBeforeHeart();
   };
 
   const syncGuestTelegramCtaHeadline = () => {
@@ -1246,9 +1318,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const link = block?.querySelector('.gv-telegram-cta-desktop__link');
     if (!block || !visual || !link) return;
 
-    /* Мобилка: не тянуть кнопку к сердцу — transform уводит блок к референсам/дресс-коду и даёт белые зазоры. */
+    /* Мобилка: не тянуть кнопку к сердцу — transform уводит блок к референсам/дресс-коду. */
     if (window.matchMedia('(max-width: 1199px)').matches) {
-      visual.style.removeProperty('transform');
+      resetMobileGuestTelegramLayout();
       return;
     }
 
@@ -1311,9 +1383,11 @@ document.addEventListener('DOMContentLoaded', () => {
     fitDressCodeArtboardHeight();
     hideDuplicatePlaceTimeFooterBlock();
     insertGuestTelegramCtaDesktop();
+    ensureGuestTelegramCtaBeforeHeart();
     ensureTelegramCtaVisualOrder();
     repairGuestTelegramCtaLink();
     syncGuestTelegramCtaHeadline();
+    resetMobileGuestTelegramLayout();
     bootstrapGuestTelegramCtaAlignIfNeeded();
     requestAnimationFrame(() => fixMobileDearGuestsHeadingLift());
     clearTimeout(countdownResyncT);
@@ -1626,6 +1700,8 @@ document.addEventListener('DOMContentLoaded', () => {
     heroResizeT = setTimeout(() => {
       applyHeroFonBandHeight();
       syncGuestTelegramCtaHeadline();
+      ensureGuestTelegramCtaBeforeHeart();
+      resetMobileGuestTelegramLayout();
       alignGuestTelegramCtaWithHeart();
     }, 120);
   });
