@@ -823,6 +823,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DRESS_REC_ID = 'rec1770135251';
   const dressMobileMq = window.matchMedia('(max-width: 1199px)');
+  let gvDressCodeArtboardLastHeight = 0;
 
   const clearDressCodeArtboardInlineHeights = () => {
     const rec = document.getElementById(DRESS_REC_ID);
@@ -848,6 +849,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const runMeasure = () => {
       if (!dressMobileMq.matches) {
         clearDressCodeArtboardInlineHeights();
+        gvDressCodeArtboardLastHeight = 0;
         return;
       }
       const artboard = rec.querySelector('.t396__artboard');
@@ -899,7 +901,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
       if (maxBottomLayout < 80) return;
 
-      const newH = Math.ceil(maxBottomLayout + 120);
+      let newH = Math.ceil(maxBottomLayout + 120);
+      // Страховка от “усадки” высоты при повторных пересчётах до догруза/анимаций.
+      // Если измерение дало меньше из-за временной неполной отрисовки, не уменьшаем.
+      if (gvDressCodeArtboardLastHeight > 0) newH = Math.max(newH, gvDressCodeArtboardLastHeight);
       const targets = [
         artboard,
         ...rec.querySelectorAll('.t396__filter, .t396__carrier'),
@@ -911,6 +916,7 @@ document.addEventListener('DOMContentLoaded', () => {
       artboard.style.setProperty('--initial-scale-height', `${newH}px`);
       rec.style.setProperty('min-height', `${newH}px`, IMP);
       rec.style.setProperty('height', 'auto', IMP);
+      gvDressCodeArtboardLastHeight = newH;
     };
 
     const imgs = rec.querySelectorAll('.gv-ref-pair img');
