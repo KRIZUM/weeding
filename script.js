@@ -164,20 +164,20 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Мобилка: отступ isida от левого края артборда (px) */
       isidaMobilePadPx: 10,
       /** Мобилка: зазор под слоем с абзацем про цветы (если задан flowersBodyDataElemId) */
-      isidaMobileGapBelowBodyPx: 14,
+      isidaMobileGapBelowBodyPx: 10,
       /** Мобилка: зазор под нижним краем последнего слоя над купидоном */
       isidaMobileGapBelowAnchorPx: 12,
       /** Мобилка: макс. ширина isida как доля ширины артборда (~левая половина экрана) */
-      isidaMobileMaxWidthFraction: 1,
+      isidaMobileMaxWidthFraction: 0.84,
       /** Мобилка: мин. зазор между низом isida и верхом купидона */
-      isidaMobileGapAboveCupidPx: 6.5,
+      isidaMobileGapAboveCupidPx: 4,
       /** Мобилка: если не нашли якорь по слоям — отступ «виртуального» текста над купидоном (px) */
       isidaMobileFallbackGapAboveCupidPx: 72,
       /**
        * Мобилка: визуальный масштаб (1.5 ≈ +50%). Через CSS transform — ширина в вёрстке ограничена
        * зазором до купидона, поэтому простое увеличение width/height откатывалось clamp’ом и не работало.
        */
-      isidaMobileSizeScale: 2,
+      isidaMobileSizeScale: 2.139,
       /**
        * Мобилка: поднять isida ближе к тексту («На свадьбу принято дарить цветы»): доля высоты артборда
        * вычитается из top (0.1 = 10%). 0 — не поднимать (иначе наезжает на заголовок «Цветы…»).
@@ -1067,7 +1067,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let maxW = Math.round(ab.width * maxFrac * vpToLayout);
         const cupidLeftRel = (cu.left - ab.left) * vpToLayout;
-        maxW = Math.min(maxW, Math.max(48, Math.round(cupidLeftRel - padPx - 8)));
+        // На мобилке часть доступной ширины всегда "зарезервирована" перед купидоном (-8).
+        // Уменьшаем запас, чтобы реальный размер isida заметно рос при увеличении scale.
+        maxW = Math.min(maxW, Math.max(48, Math.round(cupidLeftRel - padPx - 4)));
         let w = Math.max(40, maxW);
         let h = Math.round(w / Math.max(0.2, ratio));
 
