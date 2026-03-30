@@ -350,6 +350,20 @@ body {
   #rec1770088991 .tn-elem:has(img.tn-atom__img[src*='noroot(1)']) {
     clip-path: none !important;
   }
+
+  /*
+   * «Дорогие и близкие»: фиксированный translate в px (не %), иначе при скролле Safari заголовок дёргается.
+   * ПК — отдельный блок min-width: 1200px с translate(-50%, -5%).
+   */
+  #allrecords .tn-elem[data-elem-id='1758033253962'][data-gv-dear-guests-title='1'] {
+    left: 50% !important;
+    right: auto !important;
+    margin-left: 0 !important;
+    width: max-content !important;
+    max-width: min(100vw - 32px, 1100px) !important;
+    transform: translate(-50%, -28px) !important;
+    transform-origin: center center !important;
+  }
 }
 
 /* Блок цитаты (замена _.svg): как на макете — компактный скрипт, акцент бордо */
@@ -483,24 +497,31 @@ body {
    */
   #rec1770135251 .tn-elem[data-elem-id='1767984738562'] {
     display: block !important;
-    width: 238px !important;
+    width: calc(100% - 24px) !important;
+    max-width: 100% !important;
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
-    left: 50% !important;
-    margin-left: -119px !important;
+    left: 12px !important;
+    right: auto !important;
+    margin-left: 0 !important;
+    box-sizing: border-box !important;
   }
 
   #rec1770135251 .tn-elem[data-elem-id='1767984738562'] .tn-atom {
     display: block !important;
     height: auto !important;
     max-height: none !important;
+    min-height: 0 !important;
     overflow: visible !important;
   }
 
   #rec1770135251 .tn-elem[data-elem-id='1767984738562'] .tn-atom__img {
     max-height: none !important;
     height: auto !important;
+    width: 100% !important;
+    object-fit: contain !important;
+    object-position: center center !important;
   }
 }
 
@@ -913,6 +934,10 @@ body {
 }
 
 @media screen and (max-width: 1199px) {
+  .gv-telegram-cta-desktop {
+    padding: 12px 0 22px;
+  }
+
   .gv-telegram-cta-desktop__inner {
     padding: 0 16px;
   }
@@ -925,7 +950,7 @@ body {
 
   .gv-telegram-cta-desktop__visual {
     gap: 8px;
-    transform: translate(-4px, 0px);
+    transform: none;
   }
 
   .gv-telegram-cta-desktop__btn-img {
