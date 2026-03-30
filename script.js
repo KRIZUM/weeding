@@ -966,7 +966,6 @@ document.addEventListener('DOMContentLoaded', () => {
           })
       )
     ).then(run);
-    setTimeout(run, 2200);
   };
 
   /** Сломанный src (404 на Linux/Vercel из‑за регистра имён) даёт иконку и ломает поток — прячем img. */
@@ -1508,14 +1507,38 @@ document.addEventListener('DOMContentLoaded', () => {
     bootstrapGuestTelegramCtaAlignIfNeeded();
     requestAnimationFrame(() => fixMobileDearGuestsHeadingLift());
     clearTimeout(countdownResyncT);
-    countdownResyncT = setTimeout(() => initCountdown(), 350);
+    // На мобилке любые повторные таймеры/перерисовки лучше избегать,
+    // чтобы верстка не "дёргалась" при скролле/рефлоу.
+    if (!dressMobileMq.matches) {
+      countdownResyncT = setTimeout(() => initCountdown(), 350);
+    } else {
+      countdownResyncT = null;
+    }
   };
 
   const scheduleLateFixes = () => {
-    // На мобилке повторные пересчёты после загрузки приводят к "уезду" блоков.
-    // Делаем один проход и больше не двигаем верстку.
-    if (window.matchMedia('(max-width: 1199px)').matches) {
-      applyLateFixes();
+    const mobile = window.matchMedia('(max-width: 1199px)').matches;
+
+    // На мобилке важно: сначала дождаться догруза изображений дресс-кода,
+    // затем сделать ОДИН проход и больше не двигать верстку.
+    if (mobile) {
+      const dressRecEl = document.getElementById(DRESS_REC_ID);
+      const refImgs = dressRecEl ? [...dressRecEl.querySelectorAll('.gv-ref-pair img')] : [];
+      const pending = refImgs.filter((img) => !img.complete || !img.naturalHeight);
+
+      if (pending.length === 0) {
+        applyLateFixes();
+      } else {
+        Promise.all(
+          pending.map(
+            (img) =>
+              new Promise((resolve) => {
+                img.addEventListener('load', resolve, { once: true });
+                img.addEventListener('error', resolve, { once: true });
+              })
+          )
+        ).then(() => applyLateFixes());
+      }
       return;
     }
 
@@ -1807,16 +1830,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let dressResizeT = null;
   window.addEventListener('resize', () => {
+    // На мобилке не пересчитываем высоты после загрузки (телефон может триггерить resize при скролле).
+    if (dressMobileMq.matches) return;
     clearTimeout(dressResizeT);
     gvDressCodeHeightFrozen = false;
     dressResizeT = setTimeout(fitDressCodeArtboardHeight, 120);
   });
   const onDressMqChange = () => fitDressCodeArtboardHeight();
-  if (dressMobileMq.addEventListener) dressMobileMq.addEventListener('change', onDressMqChange);
-  else dressMobileMq.addListener(onDressMqChange);
+  if (!dressMobileMq.matches) {
+    if (dressMobileMq.addEventListener) dressMobileMq.addEventListener('change', onDressMqChange);
+    else dressMobileMq.addListener(onDressMqChange);
+  }
 
   const dressPair = document.querySelector(`#${DRESS_REC_ID} .gv-ref-pair`);
-  if (dressPair && typeof ResizeObserver !== 'undefined') {
+  // На мобилке перерасчёт из ResizeObserver может происходить при скролле (рендер/декод),
+  // из-за этого секция "раздувается". На мобилке перерасчёт делаем только один раз при загрузке.
+  if (!dressMobileMq.matches && dressPair && typeof ResizeObserver !== 'undefined') {
     const obs = new ResizeObserver(() => {
       // Один пересчёт: после догрузки/инициализации не двигаем верстку.
       fitDressCodeArtboardHeight();
@@ -1827,6 +1856,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
   let heroResizeT = null;
   window.addEventListener('resize', () => {
+    // На мобилке не пересчитываем layout при resize (адресная строка/рендер может триггерить resize при скролле).
+    if (window.matchMedia('(max-width: 1199px)').matches) return;
     clearTimeout(heroResizeT);
     heroResizeT = setTimeout(() => {
       applyHeroFonBandHeight();
