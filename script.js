@@ -1512,6 +1512,14 @@ document.addEventListener('DOMContentLoaded', () => {
   };
 
   const scheduleLateFixes = () => {
+    // На мобилке повторные пересчёты после загрузки приводят к "уезду" блоков.
+    // Делаем один проход и больше не двигаем верстку.
+    if (window.matchMedia('(max-width: 1199px)').matches) {
+      applyLateFixes();
+      return;
+    }
+
+    // Desktop: оставляем старую страховку по поздним вставкам DOM.
     applyLateFixes();
     const delays = [0, 50, 200, 500, 1200, 2500, 5000];
     delays.forEach((ms) => setTimeout(applyLateFixes, ms));
@@ -1809,7 +1817,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const dressPair = document.querySelector(`#${DRESS_REC_ID} .gv-ref-pair`);
   if (dressPair && typeof ResizeObserver !== 'undefined') {
-    new ResizeObserver(() => fitDressCodeArtboardHeight()).observe(dressPair);
+    const obs = new ResizeObserver(() => {
+      // Один пересчёт: после догрузки/инициализации не двигаем верстку.
+      fitDressCodeArtboardHeight();
+      obs.disconnect();
+    });
+    obs.observe(dressPair);
   }
 
   let heroResizeT = null;
