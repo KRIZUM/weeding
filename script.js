@@ -101,7 +101,8 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Сдвиг вправо: доля от ширины .gv-telegram-cta-desktop__inner */
       rowExtraShiftRightFractionOfInnerWidth: 0,
       /** Мобилка: переопределить доли; null = как на ПК */
-      rowExtraLiftFractionOfRowHeightMobile: null,
+      /** Мобилка: 0 — только выравнивание с сердцем без лишнего translate вверх */
+      rowExtraLiftFractionOfRowHeightMobile: 0,
       rowExtraShiftRightFractionOfInnerWidthMobile: null,
       /** ≤1199px: сдвинуть кнопку tg влево (px), подровнять с сердцем ниже */
       mobileNudgeLeftPx: 5,
@@ -150,7 +151,7 @@ document.addEventListener('DOMContentLoaded', () => {
      * на мобилке слева под текстом про кота и над купидоном. Положи ./assets/isida.png
      */
     flowersSection: {
-      isidaUrl: './assets/isida.PNG',
+      isidaUrl: './assets/isida.png',
       cupidFileRx: /group_497\.png|group_496\.png/i,
       /** Вертикальный зазор между isida и блоком купидона (px) */
       isidaStackGapPx: 16,
@@ -159,7 +160,7 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Сдвиг вправо: доля от ширины того же кадра (ПК) */
       isidaShiftRightRatio: 0.35,
       /** Мобилка: отступ isida от левого края артборда (px) */
-      isidaMobilePadPx: 14,
+      isidaMobilePadPx: 22,
       /** Мобилка: зазор под нижним краем последнего слоя над купидоном */
       isidaMobileGapBelowAnchorPx: 12,
       /** Мобилка: макс. ширина isida как доля ширины артборда (~левая половина экрана) */
@@ -172,12 +173,12 @@ document.addEventListener('DOMContentLoaded', () => {
        * Мобилка: визуальный масштаб (1.5 ≈ +50%). Через CSS transform — ширина в вёрстке ограничена
        * зазором до купидона, поэтому простое увеличение width/height откатывалось clamp’ом и не работало.
        */
-      isidaMobileSizeScale: 2.4,
+      isidaMobileSizeScale: 1.55,
       /**
        * Мобилка: поднять isida ближе к тексту («На свадьбу принято дарить цветы»): доля высоты артборда
-       * вычитается из top (0.1 = 10%).
+       * вычитается из top (0.1 = 10%). 0 — не поднимать (иначе наезжает на заголовок «Цветы…»).
        */
-      isidaMobileLiftTowardsTextFraction: 0.022,
+      isidaMobileLiftTowardsTextFraction: 0,
     },
     /** Шапка #rec1770088991: верх с фото до строки с датой, низ бордо. */
     hero: {
@@ -534,7 +535,14 @@ document.addEventListener('DOMContentLoaded', () => {
         mobileHero ? 0 : Number(CONFIG.hero.fonHeightTrimFromTopPx) || 0;
       const h = Math.max(95, Math.round(hPx) - trim);
       const hStr = `${h}px`;
-      if (trim > 0) {
+      /*
+       * Мобилка: при background-size 100% auto высота полосы часто меньше высоты картинки — при center top
+       * обрезается низ (люди, горизонт). center bottom держит нижнюю часть кадра.
+       * ПК: при trim>0 та же логика; иначе — дефолт из CSS (center top).
+       */
+      if (mobileHero) {
+        rec.style.setProperty('--gv-hero-fon-bg-pos', 'center bottom', IMP);
+      } else if (trim > 0) {
         rec.style.setProperty('--gv-hero-fon-bg-pos', 'center bottom', IMP);
       } else {
         rec.style.removeProperty('--gv-hero-fon-bg-pos');
@@ -1036,6 +1044,23 @@ document.addEventListener('DOMContentLoaded', () => {
         const liftTextFrac =
           Number.isFinite(liftTextFracRaw) && liftTextFracRaw > 0 ? liftTextFracRaw : 0;
         top -= Math.round(ab.height * liftTextFrac);
+        let minTopFromTitle = 0;
+        try {
+          artboard.querySelectorAll('.gv-svg-title').forEach((titleEl) => {
+            const tx = (titleEl.textContent || '').trim();
+            if (!tx.includes('Цветы') && !tx.includes('подарк')) return;
+            const tr = titleEl.getBoundingClientRect();
+            if (tr.height < 4) return;
+            const gapTitle = 10;
+            minTopFromTitle = Math.max(
+              minTopFromTitle,
+              Math.round(tr.bottom - ab.top + gapTitle)
+            );
+          });
+        } catch (_) {
+          /* ignore */
+        }
+        if (minTopFromTitle > 0) top = Math.max(top, minTopFromTitle);
         const maxTop = Math.round(cu.top - ab.top - gapAbove - hVis);
         if (top > maxTop) top = maxTop;
         if (top < 8) top = 8;
