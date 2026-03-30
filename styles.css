@@ -489,6 +489,9 @@ body {
     flex-direction: column;
     align-items: stretch;
     gap: 0px;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
   }
 
   .gv-ref-pair__img {
@@ -500,9 +503,8 @@ body {
     max-height: none !important;
   }
 
-  /* Убираем визуальный белый шов между двумя stacked-изображениями ref-* */
   .gv-ref-pair__img + .gv-ref-pair__img {
-    margin-top: -4px;
+    margin-top: 0 !important;
   }
 
   /*
@@ -511,14 +513,16 @@ body {
    */
   #rec1770135251 .tn-elem[data-elem-id='1767984738562'] {
     display: block !important;
-    width: calc(100% - 24px) !important;
+    width: 100% !important;
     max-width: 100% !important;
     height: auto !important;
     max-height: none !important;
     overflow: visible !important;
-    left: 12px !important;
-    right: auto !important;
+    left: 0 !important;
+    right: 0 !important;
     margin-left: 0 !important;
+    margin-right: 0 !important;
+    padding: 0 !important;
     box-sizing: border-box !important;
   }
 
@@ -528,14 +532,20 @@ body {
     max-height: none !important;
     min-height: 0 !important;
     overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    line-height: 0 !important;
   }
 
   #rec1770135251 .tn-elem[data-elem-id='1767984738562'] .tn-atom__img {
+    display: block !important;
     max-height: none !important;
     height: auto !important;
     width: 100% !important;
     object-fit: contain !important;
     object-position: center center !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }
 
