@@ -285,6 +285,8 @@ body {
   #rec1770088991::before {
     /* Пока JS не выставил --gv-hero-fon-url — мобильный кадр */
     background-image: var(--gv-hero-fon-url, url('./assets/fon-mobile.png'));
+    /* 100% auto + фикс. высота: при center top обрезается низ фото — держим нижнюю часть кадра */
+    background-position: center bottom;
   }
 
   /* «6 июня 2026 года»: центр; дублируется в script.js (fixMobileHeroDateLayerForMobile) после t396 scale */
@@ -342,6 +344,11 @@ body {
     margin-left: auto;
     margin-right: auto;
     box-sizing: border-box;
+  }
+
+  /* Только узкая вёрстка: снимаем clip из блока max-width:1200px — не обрезать пару на noroot */
+  #rec1770088991 .tn-elem:has(img.tn-atom__img[src*='noroot(1)']) {
+    clip-path: none !important;
   }
 }
 
