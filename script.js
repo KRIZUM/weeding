@@ -162,7 +162,7 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Сдвиг вправо: доля от ширины того же кадра (ПК) */
       isidaShiftRightRatio: 0.35,
       /** Мобилка: отступ isida от левого края артборда (px) */
-      isidaMobilePadPx: 5,
+      isidaMobilePadPx: 10,
       /** Мобилка: зазор под слоем с абзацем про цветы (если задан flowersBodyDataElemId) */
       isidaMobileGapBelowBodyPx: 10,
       /** Мобилка: зазор под нижним краем последнего слоя над купидоном */
@@ -881,6 +881,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (b > maxBottomLayout) maxBottomLayout = b;
       });
 
+      // Мобилка: у ref-изображений внутри `.gv-ref-pair` бывает `overflow: visible`,
+      // поэтому низ `.tn-elem` может оказаться выше фактического визуального конца.
+      // Учитываем реальные картинки, чтобы форма ниже не перекрывалась.
+      rec.querySelectorAll('.gv-ref-pair img').forEach((im) => {
+        const r = im.getBoundingClientRect();
+        if (r.width < 1 && r.height < 1) return;
+        const b = (r.bottom - ar.top) * vpToLayout;
+        if (b > maxBottomLayout) maxBottomLayout = b;
+      });
+
       if (maxBottomLayout < 80) return;
 
       const newH = Math.ceil(maxBottomLayout + 120);
@@ -1161,7 +1171,7 @@ document.addEventListener('DOMContentLoaded', () => {
           top = minTopReq;
         }
 
-        const leftPx = Math.max(5, Math.round(padPx));
+        const leftPx = Math.max(8, Math.round(padPx));
 
         // Требование: на мобилке isida должен иметь тот же размер, что и купидон,
         // при этом top/left не меняем (только width/height).
