@@ -400,6 +400,10 @@ body {
   left: calc(50% - 42px) !important;
 }
 
+#rec1770135251 .tn-elem[data-elem-id='1767984654844'] .tn-atom__img {
+  display: block;
+}
+
 @media screen and (max-width: 1199px) {
   #rec1770135251 .tn-elem[data-elem-id='1767984654844'] {
     left: calc(50% - 20.5px) !important;
@@ -823,6 +827,10 @@ body {
 
 /* Анкета гостя (имя, песня и т.д.): на мобилке единый кегль 16px для подписей, полей и кнопки */
 @media screen and (max-width: 1199px) {
+  #rec1770161371 {
+    padding-bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  }
+
   #rec1770161371 .t-input-title,
   #rec1770161371 input.t-input,
   #rec1770161371 textarea.t-input,
