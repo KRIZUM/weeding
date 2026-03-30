@@ -96,8 +96,8 @@ document.addEventListener('DOMContentLoaded', () => {
       /** Ссылка на группу (t.me/...). «#» — заглушка, клик блокируется как у остальных telegram-заглушек. */
       telegramHref: 'https://t.me/+9bvUQzNKcwgzYmYy',
       buttonImg: './assets/tg.png',
-      /** Доп. подъём ряда с кнопкой tg: доля от высоты ряда (та же логика на ПК и мобилке) */
-      rowExtraLiftFractionOfRowHeight: 1.2,
+      /** Доп. подъём ряда с кнопкой tg: доля от высоты ряда (0.12 ≈ 12%). Не ставьте 1.2 — это сдвиг на 120% высоты и уводит кнопку вверх на сотни px (на телефоне перекрывает текст выше). */
+      rowExtraLiftFractionOfRowHeight: 0.12,
       /** Сдвиг вправо: доля от ширины .gv-telegram-cta-desktop__inner */
       rowExtraShiftRightFractionOfInnerWidth: 0,
       /** Мобилка: переопределить доли; null = как на ПК */
@@ -172,7 +172,7 @@ document.addEventListener('DOMContentLoaded', () => {
        * Мобилка: визуальный масштаб (1.5 ≈ +50%). Через CSS transform — ширина в вёрстке ограничена
        * зазором до купидона, поэтому простое увеличение width/height откатывалось clamp’ом и не работало.
        */
-      isidaMobileSizeScale: 3.8,
+      isidaMobileSizeScale: 2.4,
       /**
        * Мобилка: поднять isida ближе к тексту («На свадьбу принято дарить цветы»): доля высоты артборда
        * вычитается из top (0.1 = 10%).
@@ -886,6 +886,24 @@ document.addEventListener('DOMContentLoaded', () => {
     ).then(() => requestAnimationFrame(runMeasure));
   };
 
+  /** Сломанный src (404 на Linux/Vercel из‑за регистра имён) даёт иконку и ломает поток — прячем img. */
+  const bindDressCodeBrokenImageHide = () => {
+    const rec = document.getElementById(DRESS_REC_ID);
+    if (!rec || rec.dataset.gvDressImgErrBound === '1') return;
+    rec.dataset.gvDressImgErrBound = '1';
+    rec.querySelectorAll('img.tn-atom__img').forEach((img) => {
+      if (img.dataset.gvImgErrBound === '1') return;
+      img.dataset.gvImgErrBound = '1';
+      img.addEventListener(
+        'error',
+        () => {
+          img.style.setProperty('display', 'none', IMP);
+        },
+        { once: true }
+      );
+    });
+  };
+
   let countdownResyncT = null;
   /** isida: на ПК над левым купидоном; на мобилке слева под текстом и над купидоном. */
   const positionIsidaBesideFlowersCupid = () => {
@@ -934,6 +952,13 @@ document.addEventListener('DOMContentLoaded', () => {
       isidaEl.alt = '';
       isidaEl.src = fs.isidaUrl;
       isidaEl.decoding = 'async';
+      isidaEl.addEventListener(
+        'error',
+        () => {
+          isidaEl.style.setProperty('display', 'none', IMP);
+        },
+        { once: true }
+      );
       artboard.appendChild(isidaEl);
       isNewIsida = true;
     } else if (isidaEl.parentElement !== artboard) {
@@ -1227,6 +1252,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const applyLateFixes = () => {
     bindNavigationRouteButton();
     fitDressCodeArtboardHeight();
+    bindDressCodeBrokenImageHide();
     applyHeroFonBandHeight();
     positionIsidaBesideFlowersCupid();
     hideDuplicatePlaceTimeFooterBlock();
