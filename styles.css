@@ -500,7 +500,6 @@ body {
     width: calc(100% - 24px) !important;
     max-width: 100% !important;
     height: auto !important;
-    max-height: none !important;
     overflow: visible !important;
     left: 12px !important;
     right: auto !important;
