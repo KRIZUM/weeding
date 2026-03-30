@@ -432,9 +432,14 @@ body {
 
   /* Высота артборда на мобилке выставляется в script.js по фактическому низу контента (две референс-картинки). */
 
+  #rec1770135251.t-rec,
   #rec1770135251,
-  #rec1770135251 .t396 {
+  #rec1770135251 .t396,
+  #rec1770135251 .t396__artboard,
+  #rec1770135251 .t396__filter,
+  #rec1770135251 .t396__carrier {
     overflow: visible !important;
+    max-height: none !important;
   }
 }
 
@@ -500,6 +505,7 @@ body {
     width: calc(100% - 24px) !important;
     max-width: 100% !important;
     height: auto !important;
+    max-height: none !important;
     overflow: visible !important;
     left: 12px !important;
     right: auto !important;
@@ -935,6 +941,8 @@ body {
 @media screen and (max-width: 1199px) {
   .gv-telegram-cta-desktop {
     padding: 12px 0 22px;
+    /* Высокий z-index рисовал блок поверх дресс-кода при скролле; в потоке достаточно auto */
+    z-index: auto;
   }
 
   .gv-telegram-cta-desktop__inner {
