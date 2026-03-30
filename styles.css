@@ -439,8 +439,8 @@ body {
   #rec1770135251 .t396__filter,
   #rec1770135251 .t396__carrier {
     /* Фиксируем мобильную высоту секции, чтобы форма всегда шла после референсов без наложения. */
-    height: 1900px !important;
-    min-height: 1900px !important;
+    height: 2100px !important;
+    min-height: 2100px !important;
     overflow: visible !important;
     max-height: none !important;
   }
