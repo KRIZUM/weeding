@@ -573,7 +573,24 @@ body {
 @media screen and (max-width: 1199px) {
   #allrecords.gv-mobile-preload {
     visibility: hidden !important;
-    opacity: 0 !important;
+    /*
+     * ВАЖНО: opacity: 0 намеренно убран.
+     * opacity: 0 на родителе (#allrecords) каскадируется на ВСЕ потомки без исключения —
+     * дочерний элемент не может переопределить opacity родителя.
+     * Прелоадер (.nl_reploader_father) живёт ВНУТРИ #allrecords, поэтому при
+     * opacity: 0 он тоже становится невидимым, и пользователь видит чистый белый экран.
+     * visibility: hidden — в отличие от opacity — может быть переопределена у потомка
+     * явным visibility: visible (см. правило ниже).
+     */
+  }
+
+  /*
+   * Прелоадер (position: fixed внутри #allrecords): делаем видимым, пока контент спрятан.
+   * visibility наследуется, но дочерний элемент МОЖЕТ переопределить его на visible,
+   * в отличие от opacity, которая не переопределяется.
+   */
+  #allrecords.gv-mobile-preload .nl_reploader_father {
+    visibility: visible !important;
   }
 }
 
@@ -1046,11 +1063,207 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
 }
+
+/* Прелоадер: держим "Загрузка" строго по центру экрана */
 .nl_reploader_father .n048-loader {
   position: fixed !important;
   left: 50% !important;
   top: 50% !important;
   transform: translate(-50%, -50%) !important;
   margin: 0 !important;
+}
+
+/* ====================================================
+ * ДОПОЛНИТЕЛЬНЫЕ АДАПТИВНЫЕ ПРАВИЛА
+ * Мобилки: 320–576px  |  Планшеты: 577–1024px
+ * ==================================================== */
+
+/*
+ * Fluid-изображения: ограничиваем ширину, чтобы они не выходили за контейнер.
+ *
+ * .tn-atom__img — изображения в Tilda Zero-блоках (T396). Их размеры
+ * управляются JS через inline-стили; задавать height: auto опасно, так как
+ * Tilda-CSS устанавливает padding-top: 10px на этом классе — при border-box
+ * это съедает часть контентной области. Оставляем только max-width: 100%.
+ */
+img:not(.tn-atom__img) {
+  max-width: 100%;
+  height: auto;
+}
+.tn-atom__img {
+  max-width: 100%;
+}
+
+/* box-sizing на весь контент — предотвращает сдвиги при padding */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+/* Дополнительная страховка от горизонтального скролла на контейнерах Tilda */
+.t-records,
+.t-container,
+.t-width,
+.t-col,
+.t-cell {
+  max-width: 100%;
+}
+
+/* ===== Минимальный размер зоны касания ≥ 44×44px (WCAG 2.5.5) ===== */
+@media screen and (max-width: 1199px) {
+  /* Кнопка отправки формы */
+  #rec1770161371 .t-submit,
+  #rec1770161371 button.t-submit {
+    min-height: 44px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+    box-sizing: border-box;
+  }
+
+  /*
+   * Поля формы: min-height 44px + font-size 16px.
+   * font-size < 16px заставляет iOS Safari авто-зумить страницу при фокусе —
+   * переопределяем значение 14px из блока выше.
+   */
+  #rec1770161371 input.t-input,
+  #rec1770161371 textarea.t-input {
+    min-height: 44px !important;
+    font-size: 16px !important;
+    box-sizing: border-box;
+  }
+
+  #rec1770161371 input.t-input::placeholder,
+  #rec1770161371 textarea.t-input::placeholder {
+    font-size: 16px !important;
+  }
+
+  /* Кнопка «Проложить маршрут» — минимальная зона касания */
+  .tn-elem[data-elem-id='167983995319'] .tn-atom {
+    min-height: 44px !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box;
+  }
+
+  /* Telegram CTA ссылка */
+  .gv-telegram-cta-desktop__link {
+    min-height: 44px;
+    min-width: 44px;
+  }
+}
+
+/* ===== Планшеты: 577–1024px ===== */
+@media screen and (min-width: 577px) and (max-width: 1024px) {
+  /*
+   * Цитата: плавная интерполяция между 36px (узкий мобайл) и 48px (десктоп).
+   * clamp(min, preferred, max): 5.5vw ≈ 44px при 800px.
+   */
+  .gv-quote-block .gv-quote-lines {
+    font-size: clamp(36px, 5.5vw, 46px);
+    line-height: 1.2;
+  }
+
+  /* Telegram CTA: промежуточный размер */
+  .gv-telegram-cta-desktop__text {
+    font-size: clamp(24px, 3.5vw, 36px);
+  }
+
+  /* Подпись-footer на планшете */
+  .gv-footer-signature-static {
+    font-size: clamp(34px, 5.5vw, 64px);
+  }
+
+  /* «Save the date» на планшете */
+  .gv-hero-save-the-date {
+    font-size: clamp(32px, 6vw, 80px);
+  }
+}
+
+/*
+ * Таймер на планшете: стартует от 641px, чтобы не перебивать
+ * уже настроенный --gv-ct-title из @media max-width:640px выше.
+ */
+@media screen and (min-width: 641px) and (max-width: 1024px) {
+  .gv-countdown-block {
+    --gv-ct-title: clamp(30px, 4.8vw, 60px);
+  }
+}
+
+/* ===== Мобилки: 320–576px ===== */
+@media screen and (max-width: 576px) {
+  /* Цитата на маленьких экранах */
+  .gv-quote-block .gv-quote-lines {
+    font-size: clamp(22px, 7.5vw, 34px);
+    line-height: 1.25;
+  }
+
+  .gv-quote-block .gv-quote-author {
+    font-size: 11px;
+  }
+
+  /* Таймер: компактный на маленьких экранах */
+  .gv-countdown-block {
+    --gv-ct-title: clamp(20px, 6.5vw, 30px);
+  }
+
+  /* Footer-подпись */
+  .gv-footer-signature-static {
+    font-size: clamp(24px, 8.5vw, 44px);
+    padding: clamp(12px, 4vw, 22px) 10px clamp(16px, 5vw, 28px);
+  }
+
+  /* Авторская подпись цитаты */
+  .gv-wedding-quote__author {
+    font-size: clamp(11px, 2.8vw, 15px);
+  }
+
+  /* «Save the date» на маленьких экранах */
+  .gv-hero-save-the-date {
+    font-size: clamp(26px, 8vw, 50px);
+    margin-top: 10px;
+  }
+
+  /* Пара референс-изображений дресс-кода: убеждаемся, что не выходят за экран */
+  .gv-ref-pair__img {
+    max-width: 100vw;
+  }
+
+  /* Блок обратного отсчёта: ещё более компактный gap */
+  .gv-countdown--native {
+    max-width: min(320px, 100vw - 16px) !important;
+  }
+}
+
+/* ===== Очень маленькие экраны: < 360px (старые/бюджетные Android) ===== */
+@media screen and (max-width: 359px) {
+  .gv-countdown-block {
+    --gv-ct-title: clamp(16px, 5.5vw, 24px);
+  }
+
+  .gv-footer-signature-static {
+    font-size: clamp(20px, 7vw, 32px);
+  }
+
+  .gv-hero-save-the-date {
+    font-size: clamp(22px, 7.5vw, 38px);
+  }
+
+  /* «— Владислав и Дарья —»: ещё мельче на 320px */
+  #rec1770088991 .tn-atom[field='tn_text_1767983130743000002'] {
+    font-size: clamp(8px, 3vw, 14px) !important;
+  }
+
+  /*
+   * SVG-заголовки: JS уже задаёт clamp с минимумом 36px через --gv-title-font-size.
+   * Только разрешаем перенос и защищаем от выхода за экран.
+   */
+  .gv-title-replacement.gv-svg-title {
+    white-space: normal !important;
+    word-break: break-word;
+    overflow-wrap: anywhere;
+    max-width: calc(100vw - 16px);
+  }
 }
 
