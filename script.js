@@ -194,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
        * ≤1199px: на сколько px увеличить высоту полосы фона (::before / --gv-hero-fon-h) вниз
        * (к дате и музыке), без сдвига верха.
        */
-      mobileFonBandExtendDownPx: 10,
+      mobileFonBandExtendDownPx: 60,
       /**
        * ≤1199px: слой с картинкой noroot(1).png — прибавка к height и сдвиг top вверх на тот же px
        * (рост «вверх» относительно макета Tilda).
@@ -219,6 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
      */
     dearGuestsHeading: {
       tildaDataElemId: '1758033253962',
+      /** Устар.: раньше inline translateY(%); мобилка теперь в CSS (px). */
       mobileLiftTranslateYPercent: 66,
     },
     dateTime: {
@@ -474,25 +475,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const DEAR_GUESTS_LIFT_ATTR = 'data-gv-dear-guests-lift-applied';
 
-  /** Мобилка: только слой «Дорогие и близкие» (перебить t-animate / t396 inline). ПК — только CSS. */
+  /** «Дорогие и близкие»: ПК — только CSS (min-width 1200); мобилка — CSS (max-width 1199, px). Убираем старый inline translateY(%), из-за него заголовок дёргался при скролле. */
   const fixMobileDearGuestsHeadingLift = () => {
     const id = CONFIG.dearGuestsHeading?.tildaDataElemId;
-    const pct = Number(CONFIG.dearGuestsHeading?.mobileLiftTranslateYPercent);
-    if (!id || !Number.isFinite(pct)) return;
+    if (!id) return;
     const el = document.querySelector(
       `.tn-elem[data-elem-id="${id}"][data-gv-dear-guests-title="1"]`
     );
     if (!el) return;
-    const mobile = window.matchMedia('(max-width: 1199px)').matches;
-    if (!mobile) {
-      if (el.getAttribute(DEAR_GUESTS_LIFT_ATTR)) {
-        el.style.removeProperty('transform');
-        el.removeAttribute(DEAR_GUESTS_LIFT_ATTR);
-      }
-      return;
+    if (el.getAttribute(DEAR_GUESTS_LIFT_ATTR)) {
+      el.style.removeProperty('transform');
+      el.removeAttribute(DEAR_GUESTS_LIFT_ATTR);
     }
-    el.setAttribute(DEAR_GUESTS_LIFT_ATTR, '1');
-    el.style.setProperty('transform', `translateY(-${pct}%)`, IMP);
   };
 
   /** Высота полосы с фоном — до верхнего края блока с датой (второй блок с бордо снизу). */
@@ -855,17 +849,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const artTop = artboard.getBoundingClientRect().top;
       let maxBottom = 0;
-      rec.querySelectorAll('.t396__elem.tn-elem').forEach((el) => {
+      const consider = (el) => {
         if (getComputedStyle(el).display === 'none') return;
         const r = el.getBoundingClientRect();
         if (r.width < 1 && r.height < 1) return;
         const bottom = r.bottom - artTop;
         if (bottom > maxBottom) maxBottom = bottom;
-      });
+      };
+      rec.querySelectorAll('.t396__elem.tn-elem').forEach(consider);
+      /* isida — не .tn-elem, иначе артборд ниже референсов и картинку/референсы обрезает overflow */
+      rec.querySelectorAll('img[data-gv-isida]').forEach(consider);
 
       if (maxBottom < 80) return;
 
-      const newH = Math.ceil(maxBottom + 36);
+      const newH = Math.ceil(maxBottom + 48);
       const targets = [
         artboard,
         ...rec.querySelectorAll('.t396__filter, .t396__carrier'),
@@ -1061,21 +1058,47 @@ document.addEventListener('DOMContentLoaded', () => {
           /* ignore */
         }
         if (minTopFromTitle > 0) top = Math.max(top, minTopFromTitle);
+
+        let minTopFromParagraph = 0;
+        try {
+          artboard.querySelectorAll('.tn-elem .tn-atom').forEach((atom) => {
+            const tx = (atom.textContent || '').replace(/\s+/g, ' ').trim();
+            if (tx.length < 30) return;
+            if (!tx.includes('На свадьбу') && !tx.includes('кошечк')) return;
+            const tr = atom.getBoundingClientRect();
+            if (tr.height < 4) return;
+            const gapP = 14;
+            minTopFromParagraph = Math.max(
+              minTopFromParagraph,
+              Math.round(tr.bottom - ab.top + gapP)
+            );
+          });
+        } catch (_) {
+          /* ignore */
+        }
+        if (minTopFromParagraph > 0) top = Math.max(top, minTopFromParagraph);
+
         const maxTop = Math.round(cu.top - ab.top - gapAbove - hVis);
         if (top > maxTop) top = maxTop;
         if (top < 8) top = 8;
 
-        isidaEl.style.setProperty('left', `${Math.round(padPx)}px`, IMP);
+        let leftPx = Math.round(ab.width / 2 - w / 2);
+        leftPx = Math.max(8, Math.min(leftPx, Math.round(ab.width - w - 8)));
+
+        isidaEl.style.setProperty('left', `${leftPx}px`, IMP);
         isidaEl.style.setProperty('top', `${top}px`, IMP);
         isidaEl.style.setProperty('width', `${w}px`, IMP);
         isidaEl.style.setProperty('height', `${h}px`, IMP);
         if (sizeScale !== 1) {
           isidaEl.style.setProperty('transform', `scale(${sizeScale})`, IMP);
-          isidaEl.style.setProperty('transform-origin', 'left top', IMP);
+          isidaEl.style.setProperty('transform-origin', 'center top', IMP);
         } else {
           isidaEl.style.removeProperty('transform');
           isidaEl.style.removeProperty('transform-origin');
         }
+        requestAnimationFrame(() => {
+          if (window.matchMedia('(max-width: 1199px)').matches) fitDressCodeArtboardHeight();
+        });
         return;
       }
 
@@ -1223,6 +1246,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const link = block?.querySelector('.gv-telegram-cta-desktop__link');
     if (!block || !visual || !link) return;
 
+    /* Мобилка: не тянуть кнопку к сердцу — transform уводит блок к референсам/дресс-коду и даёт белые зазоры. */
+    if (window.matchMedia('(max-width: 1199px)').matches) {
+      visual.style.removeProperty('transform');
+      return;
+    }
+
     const heartRecEl = document.getElementById(HEART_GROUP481_REC_ID);
     const heartImg = heartRecEl?.querySelector('img[src*="Group_481"]');
     if (!heartImg) {
@@ -1276,10 +1305,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const applyLateFixes = () => {
     bindNavigationRouteButton();
-    fitDressCodeArtboardHeight();
     bindDressCodeBrokenImageHide();
     applyHeroFonBandHeight();
     positionIsidaBesideFlowersCupid();
+    fitDressCodeArtboardHeight();
     hideDuplicatePlaceTimeFooterBlock();
     insertGuestTelegramCtaDesktop();
     ensureTelegramCtaVisualOrder();
